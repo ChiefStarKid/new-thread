@@ -1,85 +1,82 @@
 # new-thread — Claude Code skill
 
-If you're trying to spin off a background task from within a Claude Code session without opening a new chat manually, this skill does it in one command.
+If you're working in a long Claude Code session and a new task comes up — one that shouldn't interrupt what you're doing, and shouldn't inherit all the context you've built up — this skill handles the handoff.
 
-`/new-thread` creates a chip — a background session card — that the user can launch, monitor, or dismiss, without losing the context of the current session.
+`/new-thread [objective]` reads the current session, extracts only the context the new task needs, and calls `spawn_task` to launch a fresh parallel session as a chip. You stay in your current thread. The new one starts focused, not burdened.
+
+---
+
+## The problem it solves
+
+Long sessions accumulate context. That's useful until it isn't — when a new task threads into a window that was built for something else, token costs climb, reasoning gets polluted, and the original task loses its thread.
+
+The old answer was to let the new task interrupt the current session anyway. Both suffered.
+
+`/new-thread` separates them. Each session carries only the context it needs for its objective. The token budget goes further. The reasoning stays clean.
 
 ---
 
 ## Who this is for
 
-Claude Code Desktop users (Windows) who work across multiple parallel tasks and want to delegate work to a new session without context-switching.
+- **Anyone managing complex multi-part work in Claude Code** — where tasks branch mid-session and context discipline matters
+- **Developers and analysts running parallel experiments** — the hub-and-spoke pattern: one coordinating session, multiple spawns each holding only their slice of context
+- **Anyone who has felt a long session get unwieldy** — and wanted to start fresh without losing the thread of what came before
 
 ---
 
-## What it does
+## How it works
 
-1. Asks for a brief (or reads it from the command argument)
-2. Constructs a self-contained prompt for the spawned session, including today's date and the task
-3. Calls `spawn_task` to create the chip
-4. Confirms with one line in chat
+1. You type `/new-thread [objective]` — or just `/new-thread` and Claude asks
+2. Claude reads the current session and synthesises the minimum context the new task needs: decisions made, artefacts produced, constraints, relevant framing
+3. Claude calls `spawn_task` — this is a live parallel session, not a prompt to copy-paste
+4. A chip appears in the Claude Code Desktop sidebar
+5. You continue your current session or wait for the result — your call
 
-The spawned session picks up identity and project context from your `CLAUDE.md` automatically — no duplication needed.
+The spawned session loads your `CLAUDE.md` on startup for identity and project context. The handoff prompt is intentionally lean: enough to complete the task accurately, no more.
+
+---
+
+## Usage patterns
+
+**Fire and continue** — new task runs in parallel, you stay in the current session:
+```
+/new-thread draft the Q3 update based on what we just reviewed
+```
+
+**Wait for result** — spawn handles a subtask, you resume once it's done:
+```
+/new-thread check whether the auth fix we discussed breaks the refresh token flow
+```
+
+**Hub-and-spoke** — current session coordinates, spawns each run an independent variant:
+```
+/new-thread test hypothesis A: momentum signal with 3-month lookback
+/new-thread test hypothesis B: momentum signal with 6-month lookback
+```
+Each spawn gets the shared test structure plus only its hypothesis. Results come back to the hub.
 
 ---
 
 ## Prerequisites
 
-- **Claude Code Desktop** — requires the `mcp__ccd_session__spawn_task` tool, which is only available in Claude Code Desktop
-- **Windows** — skill and memory paths use Windows conventions
-- A `CLAUDE.md` at `~/CLAUDE.md` with your identity and project context (the spawned session reads this on startup)
+- **Claude Code Desktop** — requires `mcp__ccd_session__spawn_task`, available in Claude Code Desktop only
+- **Windows** — paths use Windows conventions
+- A `CLAUDE.md` at `~/CLAUDE.md` with your identity, behaviour preferences, and project context
 
 ---
 
 ## Setup
 
-**One-time:**
+One-time:
 
 1. Copy `new-thread.md` into your Claude Code commands folder:
    ```
    C:\Users\<your-username>\.claude\commands\new-thread.md
    ```
 
-2. Ensure `~/CLAUDE.md` exists and contains your identity, preferred behaviour, and any project context you want spawned sessions to inherit.
+2. Ensure `~/CLAUDE.md` exists and contains your identity and any context you want spawned sessions to inherit automatically.
 
-That's it. No API keys, no environment variables.
-
----
-
-## Usage
-
-```
-/new-thread fix the auth bug in the login flow
-```
-
-or just:
-
-```
-/new-thread
-```
-
-Claude will ask what the new thread should work on, then create the chip.
-
-**Output:**
-```
-Thread chip created: "Fix auth bug in login flow"
-```
-
-The chip appears in the Claude Code Desktop sidebar. Click to open the session, or dismiss it if you change your mind.
-
----
-
-## Example chip prompt (what the spawned session receives)
-
-```
-Date: 2026-06-26
-
-Task: fix the auth bug in the login flow
-
-Follow CLAUDE.md before doing anything.
-```
-
-The spawned session loads `CLAUDE.md`, picks up your identity and project context, and gets to work.
+No API keys. No environment variables.
 
 ---
 
