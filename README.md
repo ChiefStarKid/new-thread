@@ -2,7 +2,9 @@
 
 If you're working in a long Claude Code session and a new task comes up — one that shouldn't interrupt what you're doing, and shouldn't inherit all the context you've built up — this skill handles the handoff.
 
-`/new-thread [objective]` reads the current session, extracts only the context the new task needs, and calls `spawn_task` to launch a fresh parallel session as a chip. You stay in your current thread. The new one starts focused, not burdened.
+`/new-thread [objective]` reads the current session, extracts only the context the new task needs, and calls `spawn_task` to launch a fresh parallel Claude session as a chip. You stay in your current thread. The new one starts focused, not burdened.
+
+This is not a copy-paste workflow. It spawns a real parallel session — a separate Claude Code instance running concurrently, seeded with the minimum context it needs to do its job.
 
 ---
 
@@ -13,6 +15,8 @@ Long sessions accumulate context. That's useful until it isn't — when a new ta
 The old answer was to let the new task interrupt the current session anyway. Both suffered.
 
 `/new-thread` separates them. Each session carries only the context it needs for its objective. The token budget goes further. The reasoning stays clean.
+
+If you've ever wanted to run multiple Claude sessions at once, delegate a subtask without losing your place, or keep parallel Claude Code threads from bleeding into each other — this is the skill for that.
 
 ---
 
@@ -68,6 +72,12 @@ Each spawn gets the shared test structure plus only its hypothesis. Results come
 /new-thread check repo privacy settings
 ```
 Unrelated tasks, dispatched in seconds, each starting clean. No cross-contamination.
+
+**Clarification** — a specific ambiguity needs resolving but asking in the current session would pollute it. Spin off a focused thread to get the answer, then bring it back:
+```
+/new-thread clarify whether the API rate limit applies per user or per account
+```
+The spawned session gets the ambiguity, the options in play, and what resolving it looks like. You stay in the current session without the detour.
 
 ---
 

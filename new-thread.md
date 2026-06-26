@@ -28,9 +28,23 @@ Call `ToolSearch` with `{ "query": "select:mcp__ccd_session__spawn_task", "max_r
 
 The spawned session has no memory of this conversation. Your job is to determine what context it actually needs to carry out the task — not to dump the whole conversation, but to extract and include only what is relevant to the new objective.
 
-First, classify the brief:
+First, classify the brief by intent — not by keywords. Read the brief and the current conversation to determine which mode fits:
 
-**If the brief is a bug fix** (keywords: fix, broken, error, failing, not working, exception, crash, wrong output):
+| Mode | Intent signals |
+|---|---|
+| **Bug / defect** | Something is broken, behaving wrongly, or throwing an error. The goal is to diagnose and fix a specific failure. |
+| **Ideation** | The goal is to generate, explore, or evaluate options. No single right answer exists yet. Output is ideas, not a deliverable. |
+| **Research / explain** | The goal is to answer a specific question or explain something. Output is understanding or a summary, not an action. |
+| **Clarification** | A specific ambiguity in the current session needs resolving without polluting this context. Output is a decision or answer to bring back. |
+| **Task** | Everything else — build, write, update, draft, run. A concrete deliverable is expected. |
+
+If the intent is genuinely ambiguous after reading the brief and context, use `AskUserQuestion` to ask — but only if resolving it here is cheaper than letting the spawned session figure it out itself.
+
+Also check: **is this session acting as a hub?** If the user has fired or is about to fire multiple chips on related variants (e.g. testing hypotheses, running parallel experiments), note the hub pattern in the prompt and suggest a naming convention (e.g. H1/H2/H3, or Variant A/B/C) so results can be correlated when they come back.
+
+---
+
+### Bug / defect
 
 Extract from the current conversation:
 - What the user was doing when the issue appeared
@@ -39,8 +53,6 @@ Extract from the current conversation:
 - Whether the issue can be reproduced, and under what conditions
 - Whether the root cause is technical (code/system) or behavioural (needs a change in logic, approach, or understanding)
 - What has already been tried or ruled out
-
-Construct the prompt:
 
 ```
 Date: <today from currentDate system context>
@@ -56,15 +68,77 @@ Bug report:
 - Tried: <anything already attempted — omit if nothing>
 ```
 
-**For all other tasks:**
+---
+
+### Ideation
+
+Extract from the current conversation:
+- The problem space being explored
+- Constraints or requirements already established
+- Options or directions already considered and their status (live, ruled out, preferred)
+- What a good output looks like (volume of ideas? ranked options? a single recommendation?)
+
+```
+Date: <today from currentDate system context>
+
+Task: <the brief verbatim>
+
+Ideation brief:
+- Problem: <the space being explored>
+- Constraints: <what must be true of any valid idea — omit if none>
+- Already considered: <options already on the table and their status — omit if none>
+- Output expected: <what the user wants back>
+```
+
+---
+
+### Research / explain
+
+Extract from the current conversation:
+- The specific question to be answered
+- Relevant data, files, or sources already identified
+- What the answer will be used for (so the spawn calibrates depth and format)
+
+```
+Date: <today from currentDate system context>
+
+Task: <the brief verbatim>
+
+Research brief:
+- Question: <the specific question>
+- Sources / data: <what's available to draw on — omit if none identified>
+- Used for: <how the answer feeds back into the current work>
+```
+
+---
+
+### Clarification
+
+Extract from the current conversation:
+- The specific ambiguity or decision point
+- The options or interpretations in play
+- What the user needs back (a recommendation, a decision, a fact)
+
+```
+Date: <today from currentDate system context>
+
+Task: <the brief verbatim>
+
+Clarification needed:
+- Ambiguity: <what is unclear>
+- Options: <interpretations or choices in play>
+- Output: <what resolving this looks like>
+```
+
+---
+
+### Task
 
 Read the current conversation and identify:
 - Decisions already made that bear on the new task
 - Artefacts produced (files written, outputs generated) the new session should know about
 - Constraints or ruling-outs that would otherwise be rediscovered the hard way
 - Any framing or background the new session needs to start without false assumptions
-
-Construct the prompt:
 
 ```
 Date: <today from currentDate system context>
@@ -74,7 +148,9 @@ Task: <the brief verbatim>
 Context: <synthesised relevant context from the current session — omit if nothing material applies>
 ```
 
-Close the prompt with:
+---
+
+Close every prompt with:
 
 ```
 Follow CLAUDE.md before doing anything.
