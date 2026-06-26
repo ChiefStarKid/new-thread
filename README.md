@@ -34,6 +34,12 @@ The result: focused conversations by construction, lower token cost per turn, an
 
 If you've ever wanted to manage Claude's context window proactively, run multiple Claude sessions at once, or keep parallel Claude Code threads from bleeding into each other — this is the skill for that.
 
+### A note on the hypothesis
+
+To be clear: the claim that off-shooting beats compaction on long-run token efficiency is a **working hypothesis**, not a measured result. It's grounded in how the context window works — every turn re-reads the full history, and compaction is lossy — but the token economics haven't been quantified yet.
+
+The next action is a quantitative study: take one long, branching session, run it two ways — compacted in place versus split via `/new-thread` + `/loop-back` — and compare total tokens consumed to reach the same end state. Until that's done, treat the efficiency argument as a reasoned bet, not evidence. If you run the numbers yourself, open an issue — results welcome, including ones that disprove it.
+
 ---
 
 ## Who this is for
