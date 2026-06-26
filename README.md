@@ -8,6 +8,18 @@ This is not a copy-paste workflow. It spawns a real parallel session — a separ
 
 ---
 
+## Quick start
+
+1. Copy `new-thread.md` into `C:\Users\<your-username>\.claude\commands\`
+2. In any Claude Code Desktop session, type `/new-thread [what you want the new thread to do]`
+3. A chip appears in the sidebar — click to open the spawned session, or dismiss it
+
+That's it. `/new-thread` is a Claude Code custom command — a `.md` file that Claude reads and executes as a skill. No installation script, no configuration beyond setup.
+
+When the spawned session finishes, use `/loop-back` from within it to fire the findings back to the root session as a context-loaded chip.
+
+---
+
 ## The problem it solves
 
 Long sessions accumulate context. That's useful until it isn't — when a new task threads into a window that was built for something else, token costs climb, reasoning gets polluted, and the original task loses its thread.
@@ -103,6 +115,18 @@ One-time:
 No API keys. No environment variables.
 
 **Note on session ID lookup:** the skill identifies the current session by finding the most recently modified JSONL file under `~/.claude/projects/`. It uses `$USERNAME` to locate the path — no hardcoding required. This works across different users and working directories on Windows.
+
+---
+
+## Companion command: /loop-back
+
+`/loop-back` closes the loop. Run it from inside a spawned session when the work is done — it synthesises the findings and fires a chip back to the root session, seeded with everything the root needs to continue.
+
+The return chip is classified by what the root needs to do with it: act on findings, review a deliverable, unblock a decision, or choose between options.
+
+**`/loop-back` only works in sessions spawned by `/new-thread`.** If fired from a rootless session it will error and offer a manual override.
+
+Install: copy `loop-back.md` into the same `~/.claude/commands/` folder as `new-thread.md`.
 
 ---
 
