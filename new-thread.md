@@ -20,16 +20,17 @@ Wraps `mcp__ccd_session__spawn_task` to create a chip without the user having to
 
 ## Step 2 — Capture root session identity
 
-Before loading the schema, identify the current session so the spawn can reference it:
+Before loading the schema, identify the current session so the spawn can reference it.
 
-1. Run the following via Bash to find the current session's JSONL file — the most recently modified across all project directories:
-   ```bash
-   ls -t "C:/Users/$USERNAME/.claude/projects/"**/*.jsonl 2>/dev/null | head -1
-   ```
-2. Strip the path and `.jsonl` extension — the UUID is the current session ID
-3. Note the current session title from the conversation context
+**The captured ID must be the `local_`-prefixed session ID that `list_sessions` / `send_message` use** — NOT the raw UUID from the JSONL transcript filename. They are different namespaces; an ID in the wrong namespace cannot be resolved by `/loop-back` later.
 
-These become `Root session ID` and `Root session title` in every prompt built in Step 4.
+1. Load the lookup tool: `ToolSearch` with `{ "query": "select:mcp__ccd_session_mgmt__list_sessions", "max_results": 1 }`.
+2. Note the current session title from the conversation context.
+3. The current session is **excluded** from `list_sessions`, so it cannot return its own ID directly. Capture instead:
+   - `Root session title` — the current session title (the primary handle `/loop-back` resolves against).
+   - `Root session ID` — best-effort. If the runtime exposes the current `local_…` session ID, use it. Otherwise record the raw transcript UUID and mark it `(transcript UUID — resolve live via title)` so `/loop-back` knows not to trust it directly.
+
+`/loop-back` resolves the live ID from `Root session title` at send time (titles can drift, IDs can go stale), so the title is the field that matters most here.
 
 ---
 
