@@ -48,12 +48,26 @@ The spawned session loads your `CLAUDE.md` on startup for identity and project c
 /new-thread check whether the auth fix we discussed breaks the refresh token flow
 ```
 
+**Bug fix** — spotted an issue mid-session, don't want it derailing current work. Claude detects the bug fix intent and switches to a structured handoff: what you were doing, what you were trying to achieve, the symptom, whether it's reproducible, and whether the root cause is technical or behavioural:
+```
+/new-thread fix the token refresh error we just saw
+```
+The spawned session gets a proper bug report, not a vague brief.
+
 **Hub-and-spoke** — current session coordinates, spawns each run an independent variant:
 ```
 /new-thread test hypothesis A: momentum signal with 3-month lookback
 /new-thread test hypothesis B: momentum signal with 6-month lookback
 ```
 Each spawn gets the shared test structure plus only its hypothesis. Results come back to the hub.
+
+**Mass dispatch** — a long session has accumulated multiple unrelated threads. Clear them all at once, each into its own focused context:
+```
+/new-thread investigate the heatmap pipeline lag
+/new-thread draft the follow-up email to Alan
+/new-thread check repo privacy settings
+```
+Unrelated tasks, dispatched in seconds, each starting clean. No cross-contamination.
 
 ---
 
