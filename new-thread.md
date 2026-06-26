@@ -28,13 +28,43 @@ Call `ToolSearch` with `{ "query": "select:mcp__ccd_session__spawn_task", "max_r
 
 The spawned session has no memory of this conversation. Your job is to determine what context it actually needs to carry out the task — not to dump the whole conversation, but to extract and include only what is relevant to the new objective.
 
+First, classify the brief:
+
+**If the brief is a bug fix** (keywords: fix, broken, error, failing, not working, exception, crash, wrong output):
+
+Extract from the current conversation:
+- What the user was doing when the issue appeared
+- What they were trying to achieve
+- What the blocker or issue is (error, wrong output, unexpected behaviour)
+- Whether the issue can be reproduced, and under what conditions
+- Whether the root cause is technical (code/system) or behavioural (needs a change in logic, approach, or understanding)
+- What has already been tried or ruled out
+
+Construct the prompt:
+
+```
+Date: <today from currentDate system context>
+
+Task: <the brief verbatim>
+
+Bug report:
+- Doing: <what the user was doing>
+- Goal: <what they were trying to achieve>
+- Issue: <the blocker or observed problem>
+- Reproducible: <yes / no / unknown — and conditions if known>
+- Root cause type: <technical | behavioural>
+- Tried: <anything already attempted — omit if nothing>
+```
+
+**For all other tasks:**
+
 Read the current conversation and identify:
 - Decisions already made that bear on the new task
 - Artefacts produced (files written, outputs generated) the new session should know about
 - Constraints or ruling-outs that would otherwise be rediscovered the hard way
 - Any framing or background the new session needs to start without false assumptions
 
-Then construct the `prompt` string:
+Construct the prompt:
 
 ```
 Date: <today from currentDate system context>
