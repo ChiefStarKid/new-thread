@@ -18,13 +18,25 @@ Wraps `mcp__ccd_session__spawn_task` to create a chip without the user having to
 
 ---
 
-## Step 2 — Load the spawn_task schema
+## Step 2 — Capture root session identity
+
+Before loading the schema, identify the current session so the spawn can reference it:
+
+1. Run `ls -t "C:/Users/Third Sight/.claude/projects/C--Users-Third-Sight/"*.jsonl | head -1` via Bash
+2. Strip the path and `.jsonl` extension — the UUID is the current session ID
+3. Note the current session title from the conversation context
+
+These become `Root session ID` and `Root session title` in every prompt built in Step 3.
+
+---
+
+## Step 3 — Load the spawn_task schema
 
 Call `ToolSearch` with `{ "query": "select:mcp__ccd_session__spawn_task", "max_results": 1 }` to load the tool schema before calling it.
 
 ---
 
-## Step 3 — Synthesise context and build the prompt
+## Step 4 — Synthesise context and build the prompt
 
 The spawned session has no memory of this conversation. Your job is to determine what context it actually needs to carry out the task — not to dump the whole conversation, but to extract and include only what is relevant to the new objective.
 
@@ -56,6 +68,8 @@ Extract from the current conversation:
 
 ```
 Date: <today from currentDate system context>
+Root session ID: <UUID from Step 2>
+Root session title: <title from Step 2>
 
 Task: <the brief verbatim>
 
@@ -158,14 +172,14 @@ Follow CLAUDE.md before doing anything.
 
 ---
 
-## Step 4 — Derive title and tldr
+## Step 5 — Derive title and tldr
 
 - **`title`**: Imperative phrase from the brief, ≤60 chars. Start with a verb (e.g. "Fix auth bug in login flow", "Draft Q3 update email", "Build momentum report").
 - **`tldr`**: 1–2 plain-English sentences describing what the new session will do and why. No file paths.
 
 ---
 
-## Step 5 — Call spawn_task
+## Step 6 — Call spawn_task
 
 Call `mcp__ccd_session__spawn_task` with:
 - `title`: from Step 4
@@ -175,7 +189,7 @@ Call `mcp__ccd_session__spawn_task` with:
 
 ---
 
-## Step 6 — Confirm
+## Step 7 — Confirm
 
 Output one line in chat:
 
