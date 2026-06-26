@@ -42,6 +42,29 @@ The next action is a quantitative study: take one long, branching session, run i
 
 ---
 
+## How it compares to /compact and /fork
+
+Claude Code already ships two ways to manage a session that has grown too big or branched off-topic. `/new-thread` is a third option with a different trade-off. If you're deciding between them:
+
+| | `/compact` | `/fork` | `/new-thread` |
+|---|---|---|---|
+| **Result** | Same session continues, shorter | New session, branched at a point | New session, runs in parallel |
+| **Context carried over** | Lossy summary of *everything* | Full history up to the fork point | Synthesised *minimum* the task needs |
+| **Original session** | Replaced by its summary | Untouched, but you leave it | Untouched, you stay in it |
+| **Runs alongside?** | No — you continue in one thread | No — you switch to the fork | Yes — a chip runs concurrently |
+| **Off-topic pollution** | Reduced, not removed — the summary still carries every thread | Inherited in full — the fork starts with all the noise | Eliminated — the spawn starts clean on one task |
+| **Returns findings?** | N/A — never left | Manual — you carry them back yourself | `/loop-back` fires a context-loaded chip home |
+
+**The short version:**
+
+- **`/compact`** fixes *length*. It shrinks the current conversation but keeps you in it, and the summary still blends every thread together. Good when you want to keep going on the *same* task and just need headroom.
+- **`/fork`** branches the *whole* context. The new session inherits everything up to the fork point — fast to start, but it carries all the accumulated noise with it, and you've left your original thread behind. Good when the new work genuinely needs the full history.
+- **`/new-thread`** extracts *only what the off-shoot needs* and runs it in parallel. Slower to set up (Claude has to synthesise the brief), but the spawn starts clean, your original thread stays live and untouched, and `/loop-back` brings just the conclusion back. Good when the off-shoot is a *different* task that shouldn't drag the whole conversation with it.
+
+Put differently: `/fork` asks "what if I copied this entire conversation and kept going?" `/new-thread` asks "what's the smallest brief that lets a fresh session do this one thing, while I carry on here?"
+
+---
+
 ## Who this is for
 
 - **Anyone managing complex multi-part work in Claude Code** — where tasks branch mid-session and context discipline matters
