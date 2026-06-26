@@ -20,25 +20,31 @@ When the spawned session finishes, use `/loop-back` from within it to fire the f
 
 ---
 
-## The problem it solves
+## What you actually get
 
-Claude reads the whole conversation on every turn. That's by design, and it's a strength — Claude reasons over everything you've said, not just the last message. The cost is that every turn pays for the entire history in tokens, and everything in the window influences the next response.
+Strip away the theory and here is what the skill does for you, concretely:
 
-The trouble is that real work is seldom linear. A session that starts as one task sprouts off-shoots: a bug you notice mid-flow, a tangent worth chasing, a question you want answered before continuing. Each off-shoot you pursue in the same window does two things — it inflates the context every future turn must carry, and it bleeds its own framing into a conversation that was about something else. The longer the session, the more both costs compound.
+1. **You stay in your current session.** Firing `/new-thread` does not move you. You spin off the new task and keep working exactly where you are. The off-shoot runs elsewhere, as a chip, while your live conversation continues uninterrupted. (This is the opposite of `/fork`, which makes *you* leave for the branch.)
 
-The usual remedy is compaction — summarise the conversation and continue from the summary. The hypothesis behind this skill is that **compaction is the wrong tool for this**. It's blunt: it flattens a structured, branching conversation into a lossy précis, discards the distinctions between threads, and often costs more tokens in the long run as Claude re-derives context the summary dropped. You trade a clean break for a muddy one.
+2. **Claude writes the hand-off brief for you.** Without the skill, spinning off a related task means either opening a blank chat and re-explaining everything, or dragging the entire history along. `/new-thread` reads the current conversation and assembles the brief itself — you type one line, Claude works out what the spawn needs to know. You skip the re-explaining.
 
-`/new-thread` takes the opposite approach. Instead of letting off-shoots accumulate and then bluntly compressing them, it keeps each conversation focused by spinning off-shoots into their own sessions — each carrying only the slice of context it actually needs. The original thread stays lean and on-topic. The off-shoot runs clean. And when an off-shoot produces something the original thread needs, `/loop-back` feeds just that conclusion back in — not the whole transcript.
+3. **It runs in parallel.** The chip is a genuinely separate, concurrent Claude session. Fire three in ten seconds and they all work at once while you carry on. `/compact` and `/fork` are both single-threaded — one conversation at a time.
 
-The result: focused conversations by construction, lower token cost per turn, and no cross-contamination between threads. The typical pattern is to fire `/new-thread` once a session has built up real context — by then the off-shoot prompt is inherently lean, because it only carries the relevant slice.
+4. **`/loop-back` carries the answer home automatically.** When the spawn is done, you don't copy-paste its conclusion back by hand. `/loop-back` fires a chip back into the exact session that spawned it, pre-loaded with what that session needs to continue.
 
-If you've ever wanted to manage Claude's context window proactively, run multiple Claude sessions at once, or keep parallel Claude Code threads from bleeding into each other — this is the skill for that.
+That is the proven part — the workflow ergonomics. Stay put, auto-written brief, parallel execution, automatic return. None of it depends on a theory being right.
 
-### A note on the hypothesis
+---
 
-To be clear: the claim that off-shooting beats compaction on long-run token efficiency is a **working hypothesis**, not a measured result. It's grounded in how the context window works — every turn re-reads the full history, and compaction is lossy — but the token economics haven't been quantified yet.
+## Why it might also be cheaper (a working hypothesis)
 
-The next action is a quantitative study: take one long, branching session, run it two ways — compacted in place versus split via `/new-thread` + `/loop-back` — and compare total tokens consumed to reach the same end state. Until that's done, treat the efficiency argument as a reasoned bet, not evidence. If you run the numbers yourself, open an issue — results welcome, including ones that disprove it.
+There is a second, bolder claim — that off-shooting is also more *token-efficient* than the usual alternative. This part is a **working hypothesis**, not a measured result. Treat it as a reasoned bet, separate from the ergonomic wins above.
+
+The reasoning: Claude reads the whole conversation on every turn. That's by design and it's a strength — Claude reasons over everything you've said. The cost is that every turn pays for the entire history in tokens, and real work is seldom linear. A long session sprouts off-shoots — a bug noticed mid-flow, a tangent, a question — and each one pursued in the same window both inflates the context every future turn must carry and bleeds its framing into a conversation that was about something else.
+
+The usual remedy is compaction: summarise and continue from the summary. The hypothesis is that **compaction is too blunt an instrument**. It flattens a branching conversation into a lossy précis, discards the distinctions between threads, and may cost more tokens in the long run as Claude re-derives context the summary dropped. `/new-thread` instead keeps each conversation focused by construction — every off-shoot carries only the slice it needs, and `/loop-back` returns just the conclusion, not the transcript.
+
+**This has not been quantified.** The next action is a study: take one long, branching session, run it two ways — compacted in place versus split via `/new-thread` + `/loop-back` — and compare total tokens to reach the same end state. Until then, the efficiency claim is a bet, not evidence. If you run the numbers, open an issue — results welcome, including ones that disprove it.
 
 ---
 
@@ -62,6 +68,11 @@ Claude Code already ships two ways to manage a session that has grown too big or
 - **`/new-thread`** extracts *only what the off-shoot needs* and runs it in parallel. Slower to set up (Claude has to synthesise the brief), but the spawn starts clean, your original thread stays live and untouched, and `/loop-back` brings just the conclusion back. Good when the off-shoot is a *different* task that shouldn't drag the whole conversation with it.
 
 Put differently: `/fork` asks "what if I copied this entire conversation and kept going?" `/new-thread` asks "what's the smallest brief that lets a fresh session do this one thing, while I carry on here?"
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/workflow-comparison-dark.svg">
+  <img alt="Three ways to handle an off-shoot: /compact summarises one thread in place; /fork branches the whole context and you leave the original behind; /new-thread keeps your main thread unbroken while a lean spawn peels off in parallel and loops the answer back." src="assets/workflow-comparison-light.svg" width="100%">
+</picture>
 
 ---
 
