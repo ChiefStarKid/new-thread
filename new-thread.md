@@ -22,11 +22,14 @@ Wraps `mcp__ccd_session__spawn_task` to create a chip without the user having to
 
 Before loading the schema, identify the current session so the spawn can reference it:
 
-1. Run `ls -t "C:/Users/Third Sight/.claude/projects/C--Users-Third-Sight/"*.jsonl | head -1` via Bash
+1. Run the following via Bash to find the current session's JSONL file — the most recently modified across all project directories:
+   ```bash
+   ls -t "C:/Users/$USERNAME/.claude/projects/"**/*.jsonl 2>/dev/null | head -1
+   ```
 2. Strip the path and `.jsonl` extension — the UUID is the current session ID
 3. Note the current session title from the conversation context
 
-These become `Root session ID` and `Root session title` in every prompt built in Step 3.
+These become `Root session ID` and `Root session title` in every prompt built in Step 4.
 
 ---
 

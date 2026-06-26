@@ -102,6 +102,8 @@ One-time:
 
 No API keys. No environment variables.
 
+**Note on session ID lookup:** the skill identifies the current session by finding the most recently modified JSONL file under `~/.claude/projects/`. It uses `$USERNAME` to locate the path — no hardcoding required. This works across different users and working directories on Windows.
+
 ---
 
 ## Issues / feedback
