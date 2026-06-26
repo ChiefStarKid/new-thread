@@ -1,48 +1,185 @@
-<svg width="100%" viewBox="0 0 680 444" role="img" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
+<svg width="100%" viewBox="0 0 800 560" role="img" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system, Segoe UI, Helvetica, Arial, sans-serif">
 <title>How /compact, /fork and /new-thread each handle a session off-shoot (dark)</title>
-<desc>Dark-mode version. Three stacked timelines comparing /compact, /fork and /new-thread.</desc>
+<desc>Dark-mode version. Three stacked timelines. /compact summarises in place. /fork branches the whole context. /new-thread keeps your main thread clean while a long independent spawn does the heavy work — only the answer returns.</desc>
 <defs>
-<marker id="ard" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-</marker>
+  <marker id="ard" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="ard-sm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
 </defs>
-<rect x="2" y="2" width="676" height="440" rx="12" fill="#1C1C1A" stroke="#3A3A36"/>
+
+<!-- Card -->
+<rect x="2" y="2" width="796" height="556" rx="12" fill="#1C1C1A" stroke="#3A3A36"/>
 <text x="24" y="34" font-size="16" font-weight="500" fill="#ECEAE2">Three ways to handle an off-shoot</text>
-<line x1="24" y1="48" x2="656" y2="48" stroke="#3A3A36"/>
+<line x1="24" y1="48" x2="776" y2="48" stroke="#3A3A36"/>
 
-<text x="24" y="104" font-size="15" font-weight="500" fill="#85B7EB">/compact</text>
-<text x="24" y="123" font-size="12" fill="#9C9A92">one thread</text>
-<rect x="190" y="90" width="150" height="40" rx="6" fill="#2A2A27" stroke="#5F5E5A"/>
-<text x="265" y="110" font-size="12" fill="#C9C7BD" text-anchor="middle" dominant-baseline="central">session grows</text>
-<line x1="342" y1="110" x2="372" y2="110" stroke="#888780" stroke-width="1.5" marker-end="url(#ard)"/>
-<rect x="374" y="92" width="86" height="36" rx="6" fill="#3A2F17" stroke="#BA7517"/>
-<text x="417" y="110" font-size="12" fill="#FAC775" text-anchor="middle" dominant-baseline="central">summary</text>
-<line x1="462" y1="110" x2="492" y2="110" stroke="#888780" stroke-width="1.5" marker-end="url(#ard)"/>
-<rect x="494" y="90" width="120" height="40" rx="6" fill="#2A2A27" stroke="#5F5E5A"/>
-<text x="554" y="110" font-size="12" fill="#C9C7BD" text-anchor="middle" dominant-baseline="central">continue</text>
-<text x="190" y="150" font-size="12" fill="#9C9A92">same session, compressed in place — every thread blended together</text>
-<line x1="24" y1="170" x2="656" y2="170" stroke="#2E2E2B"/>
+<!-- ─── /compact ─── -->
+<text x="24" y="84" font-size="14" font-weight="500" fill="#85B7EB">/compact</text>
+<text x="24" y="100" font-size="11" fill="#6B6A64">one thread</text>
 
-<text x="24" y="219" font-size="15" font-weight="500" fill="#F0997B">/fork</text>
-<text x="24" y="238" font-size="12" fill="#9C9A92">new branch</text>
-<rect x="190" y="205" width="150" height="40" rx="6" fill="#2A2A27" stroke="#5F5E5A"/>
-<text x="265" y="225" font-size="12" fill="#C9C7BD" text-anchor="middle" dominant-baseline="central">session so far</text>
-<line x1="342" y1="225" x2="378" y2="225" stroke="#888780" stroke-width="1.5" marker-end="url(#ard)"/>
-<rect x="380" y="205" width="220" height="40" rx="6" fill="#3A201A" stroke="#D85A30"/>
-<text x="490" y="225" font-size="12" fill="#F0997B" text-anchor="middle" dominant-baseline="central">fork — carries all context</text>
-<text x="190" y="265" font-size="11" fill="#6B6A64">original left behind</text>
-<text x="380" y="265" font-size="12" fill="#9C9A92">you move here; the entire history comes with you</text>
-<line x1="24" y1="288" x2="656" y2="288" stroke="#2E2E2B"/>
+<!-- session grows -->
+<rect x="190" y="70" width="130" height="36" rx="5" fill="#2A2A27" stroke="#5F5E5A"/>
+<text x="255" y="88" font-size="11" fill="#C9C7BD" text-anchor="middle" dominant-baseline="central">session grows</text>
+<!-- context dots accumulating inside -->
+<circle cx="218" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="226" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="234" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="242" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="250" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="258" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="266" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="274" cy="94" r="2" fill="#5F5E5A"/>
 
-<text x="24" y="346" font-size="15" font-weight="500" fill="#5DCAA5">/new-thread</text>
-<text x="24" y="365" font-size="12" fill="#9C9A92">off-shoot</text>
-<rect x="190" y="302" width="410" height="40" rx="6" fill="#103A30" stroke="#1D9E75"/>
-<text x="395" y="322" font-size="12" fill="#9FE1CB" text-anchor="middle" dominant-baseline="central">your session — continues uninterrupted</text>
-<line x1="350" y1="343" x2="350" y2="372" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#ard)"/>
-<line x1="430" y1="372" x2="430" y2="343" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#ard)"/>
-<text x="344" y="360" font-size="11" fill="#5DCAA5" text-anchor="end">lean brief</text>
-<text x="436" y="360" font-size="11" fill="#5DCAA5" text-anchor="start">loop-back</text>
-<rect x="300" y="373" width="180" height="34" rx="6" fill="#1C1C1A" stroke="#1D9E75"/>
-<text x="390" y="390" font-size="12" fill="#5DCAA5" text-anchor="middle" dominant-baseline="central">spawn — one task, clean</text>
-<text x="190" y="428" font-size="12" fill="#9C9A92">main thread never breaks; the answer returns when ready</text>
+<line x1="322" y1="88" x2="350" y2="88" stroke="#888780" stroke-width="1.5" marker-end="url(#ard)"/>
+
+<!-- summary box -->
+<rect x="352" y="72" width="80" height="32" rx="5" fill="#3A2F17" stroke="#BA7517"/>
+<text x="392" y="88" font-size="11" fill="#FAC775" text-anchor="middle" dominant-baseline="central">summary</text>
+
+<line x1="434" y1="88" x2="462" y2="88" stroke="#888780" stroke-width="1.5" marker-end="url(#ard)"/>
+
+<!-- continue — context already baked in -->
+<rect x="464" y="70" width="190" height="36" rx="5" fill="#2A2A27" stroke="#5F5E5A"/>
+<text x="559" y="83" font-size="11" fill="#C9C7BD" text-anchor="middle" dominant-baseline="central">continue — context baked in</text>
+<circle cx="474" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="482" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="490" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="498" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="506" cy="94" r="2" fill="#5F5E5A"/>
+<circle cx="514" cy="94" r="2" fill="#5F5E5A"/>
+
+<text x="190" y="125" font-size="11" fill="#6B6A64">every thread blended together — off-topic context never leaves</text>
+<line x1="24" y1="142" x2="776" y2="142" stroke="#2E2E2B"/>
+
+<!-- ─── /fork ─── -->
+<text x="24" y="171" font-size="14" font-weight="500" fill="#F0997B">/fork</text>
+<text x="24" y="187" font-size="11" fill="#6B6A64">new branch</text>
+
+<rect x="190" y="157" width="130" height="36" rx="5" fill="#2A2A27" stroke="#5F5E5A"/>
+<text x="255" y="170" font-size="11" fill="#C9C7BD" text-anchor="middle" dominant-baseline="central">session so far</text>
+<circle cx="218" cy="181" r="2" fill="#5F5E5A"/>
+<circle cx="226" cy="181" r="2" fill="#5F5E5A"/>
+<circle cx="234" cy="181" r="2" fill="#5F5E5A"/>
+<circle cx="242" cy="181" r="2" fill="#5F5E5A"/>
+<circle cx="250" cy="181" r="2" fill="#5F5E5A"/>
+<circle cx="258" cy="181" r="2" fill="#5F5E5A"/>
+<circle cx="266" cy="181" r="2" fill="#5F5E5A"/>
+
+<line x1="322" y1="175" x2="350" y2="175" stroke="#888780" stroke-width="1.5" marker-end="url(#ard)"/>
+
+<!-- fork block — carries all the accumulated context -->
+<rect x="352" y="155" width="350" height="40" rx="5" fill="#3A201A" stroke="#D85A30"/>
+<text x="527" y="170" font-size="11" fill="#F0997B" text-anchor="middle" dominant-baseline="central">fork — carries ALL accumulated context</text>
+<!-- context dots inside fork — dense, showing the weight -->
+<circle cx="362" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="370" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="378" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="386" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="394" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="402" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="410" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="418" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="426" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="434" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="442" cy="186" r="2" fill="#8B3A22"/>
+<circle cx="450" cy="186" r="2" fill="#8B3A22"/>
+
+<text x="190" y="215" font-size="11" fill="#6B6A64">you leave the original — the fork starts burdened</text>
+<line x1="24" y1="230" x2="776" y2="230" stroke="#2E2E2B"/>
+
+<!-- ─── /new-thread ─── -->
+<text x="24" y="259" font-size="14" font-weight="500" fill="#5DCAA5">/new-thread</text>
+<text x="24" y="275" font-size="11" fill="#6B6A64">off-shoot</text>
+
+<!-- Main thread — clean, unbroken, full width -->
+<rect x="190" y="245" width="572" height="36" rx="5" fill="#103A30" stroke="#1D9E75"/>
+<text x="476" y="263" font-size="11" fill="#9FE1CB" text-anchor="middle" dominant-baseline="central">your main thread — continues uninterrupted and stays clean</text>
+
+<!-- lean brief arrow DOWN — thin, small token marker -->
+<line x1="316" y1="282" x2="316" y2="316" stroke="#1D9E75" stroke-width="1.2" marker-end="url(#ard-sm)"/>
+<rect x="308" y="285" width="10" height="8" rx="1" fill="#1D9E75" opacity="0.6"/>
+<text x="302" y="313" font-size="10" fill="#5DCAA5" text-anchor="end">lean brief</text>
+
+<!-- loop-back arrow UP — thin, small token marker -->
+<line x1="716" y1="318" x2="716" y2="284" stroke="#5DCAA5" stroke-width="1.2" marker-end="url(#ard-sm)"/>
+<rect x="708" y="302" width="10" height="8" rx="1" fill="#5DCAA5" opacity="0.6"/>
+<text x="722" y="313" font-size="10" fill="#5DCAA5" text-anchor="start">answer only</text>
+
+<!-- Spawn track — long, independent, with work segments -->
+<!-- Outer container -->
+<rect x="280" y="320" width="472" height="130" rx="6" fill="#0D2820" stroke="#1D9E75" stroke-dasharray="4 2"/>
+
+<!-- Segment dividers -->
+<line x1="374" y1="320" x2="374" y2="450" stroke="#1A4A38" stroke-width="1"/>
+<line x1="468" y1="320" x2="468" y2="450" stroke="#1A4A38" stroke-width="1"/>
+<line x1="562" y1="320" x2="562" y2="450" stroke="#1A4A38" stroke-width="1"/>
+<line x1="656" y1="320" x2="656" y2="450" stroke="#1A4A38" stroke-width="1"/>
+
+<!-- Work block labels -->
+<text x="327" y="340" font-size="10" fill="#3D8A6E" text-anchor="middle">research</text>
+<text x="421" y="340" font-size="10" fill="#3D8A6E" text-anchor="middle">analysis</text>
+<text x="515" y="340" font-size="10" fill="#3D8A6E" text-anchor="middle">drafting</text>
+<text x="609" y="340" font-size="10" fill="#3D8A6E" text-anchor="middle">review</text>
+<text x="694" y="340" font-size="10" fill="#3D8A6E" text-anchor="middle">done</text>
+
+<!-- Context accumulating inside spawn — dots growing denser toward the right -->
+<!-- Block 1 -->
+<circle cx="295" cy="360" r="2.5" fill="#1D9E75" opacity="0.4"/>
+<circle cx="307" cy="360" r="2.5" fill="#1D9E75" opacity="0.4"/>
+<circle cx="319" cy="360" r="2.5" fill="#1D9E75" opacity="0.4"/>
+<circle cx="295" cy="374" r="2.5" fill="#1D9E75" opacity="0.4"/>
+<circle cx="307" cy="374" r="2.5" fill="#1D9E75" opacity="0.4"/>
+<!-- Block 2 -->
+<circle cx="388" cy="360" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="400" cy="360" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="412" cy="360" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="388" cy="374" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="400" cy="374" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="412" cy="374" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="388" cy="388" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<circle cx="400" cy="388" r="2.5" fill="#1D9E75" opacity="0.5"/>
+<!-- Block 3 -->
+<circle cx="482" cy="355" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="494" cy="355" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="506" cy="355" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="518" cy="355" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="482" cy="369" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="494" cy="369" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="506" cy="369" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="482" cy="383" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="494" cy="383" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<circle cx="482" cy="397" r="2.5" fill="#1D9E75" opacity="0.6"/>
+<!-- Block 4 -->
+<circle cx="576" cy="350" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="588" cy="350" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="600" cy="350" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="612" cy="350" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="624" cy="350" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="576" cy="364" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="588" cy="364" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="600" cy="364" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="612" cy="364" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="576" cy="378" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="588" cy="378" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="600" cy="378" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="576" cy="392" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="588" cy="392" r="2.5" fill="#1D9E75" opacity="0.7"/>
+<circle cx="576" cy="406" r="2.5" fill="#1D9E75" opacity="0.7"/>
+
+<!-- Context label inside spawn -->
+<text x="516" y="430" font-size="10" fill="#3D8A6E" text-anchor="middle">context accumulates here — not in your main thread</text>
+
+<!-- Spawn track label -->
+<text x="516" y="446" font-size="11" font-weight="500" fill="#5DCAA5" text-anchor="middle">spawn — long independent run</text>
+
+<!-- Bottom caption -->
+<text x="190" y="478" font-size="11" fill="#9C9A92">the answer alone returns — your main thread never felt the weight</text>
+
+<!-- Token comparison callout -->
+<rect x="190" y="492" width="572" height="50" rx="5" fill="#161614" stroke="#2E2E2B"/>
+<text x="476" y="511" font-size="11" fill="#6B6A64" text-anchor="middle">/fork + /compact: off-topic context bleeds into every future turn</text>
+<text x="476" y="529" font-size="11" fill="#5DCAA5" text-anchor="middle">/new-thread: off-topic context lives only in the spawn — main thread stays focused</text>
+
 </svg>
