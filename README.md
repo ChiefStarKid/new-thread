@@ -162,4 +162,4 @@ No API keys. No environment variables.
 
 ## Issues / feedback
 
-Open an issue on this repo or email joseph.solomon@thirdsight.net.
+Open an issue on this repo. For other enquiries, reach me on [LinkedIn](https://www.linkedin.com/in/joseph-solomon-%E6%88%B4%E4%BC%81%E5%BA%86-376156160/) or at joseph@kainosis.com.
