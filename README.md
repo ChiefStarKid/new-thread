@@ -1,10 +1,12 @@
 # new-thread — Claude Code skill
 
+> **Requires Claude Code Desktop.** The skill calls `spawn_task`, which creates the suggested-task chip — a Desktop-only feature. It won't work in the terminal CLI or web. Examples use Windows paths.
+
 If you're working in a long Claude Code session and a new task comes up — one that shouldn't interrupt what you're doing, and shouldn't inherit all the context you've built up — this skill handles the handoff.
 
 `/new-thread [objective]` reads the current session, extracts only the context the new task needs, and calls `spawn_task` to launch a fresh parallel Claude session as a chip. You stay in your current thread. The new one starts focused, not burdened.
 
-This is not a copy-paste workflow. It spawns a real parallel session — a separate Claude Code instance running concurrently, seeded with the minimum context it needs to do its job.
+This is not a copy-paste workflow. It stages a real parallel session — a separate Claude Code instance, seeded with the minimum context it needs — that you launch with one click on the chip.
 
 ---
 
@@ -24,11 +26,11 @@ When the spawned session finishes, use `/loop-back` from within it to fire the f
 
 Strip away the theory and here is what the skill does for you, concretely:
 
-1. **You stay in your current session.** Firing `/new-thread` does not move you. You spin off the new task and keep working exactly where you are. The off-shoot runs elsewhere, as a chip, while your live conversation continues uninterrupted. (This is the opposite of `/fork`, which makes *you* leave for the branch.)
+1. **You stay in your current session.** Firing `/new-thread` does not move you. It stages the off-shoot as a chip; you start it with a click and it runs elsewhere, while your live conversation continues uninterrupted. (This is the opposite of `/fork`, which makes *you* leave for the branch.)
 
 2. **Claude writes the hand-off brief for you.** Without the skill, spinning off a related task means either opening a blank chat and re-explaining everything, or dragging the entire history along. `/new-thread` reads the current conversation and assembles the brief itself — you type one line, Claude works out what the spawn needs to know. You skip the re-explaining.
 
-3. **It runs in parallel.** The chip is a genuinely separate, concurrent Claude session. Fire three in ten seconds and they all work at once while you carry on. `/compact` and `/fork` are both single-threaded — one conversation at a time.
+3. **It runs in parallel.** Once started, the chip is a genuinely separate, concurrent Claude session. Stage three in ten seconds, start them, and they all work at once while you carry on. `/compact` and `/fork` are both single-threaded — one conversation at a time.
 
 4. **`/loop-back` carries the answer home automatically.** When the spawn is done, you don't copy-paste its conclusion back by hand. `/loop-back` fires a chip back into the exact session that spawned it, pre-loaded with what that session needs to continue.
 
@@ -88,8 +90,8 @@ Put differently: `/fork` asks "what if I copied this entire conversation and kep
 
 1. You type `/new-thread [objective]` — or just `/new-thread` and Claude asks
 2. Claude classifies your brief by intent (bug fix, ideation, research, clarification, or task) and extracts the relevant context from the current session — not a dump, an intelligent synthesis
-3. Claude calls `spawn_task` — a live parallel Claude session, not a prompt to copy-paste
-4. A chip appears in the Claude Code Desktop sidebar
+3. Claude calls `spawn_task` — staging a parallel Claude session, not a prompt to copy-paste
+4. A **Suggested task** chip appears at the top-right of the conversation — click **Start locally** to spin it off into its own session, or dismiss it
 5. You continue your current session or wait for the result — your call
 
 The spawned session loads your `CLAUDE.md` on startup for identity and project context. The handoff prompt is intentionally lean: enough to complete the task accurately, no more. Every spawn also receives the root session ID and title so it knows where it came from.
