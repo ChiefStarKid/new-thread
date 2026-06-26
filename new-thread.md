@@ -1,6 +1,6 @@
 ﻿---
 name: new-thread
-description: Spin off a new CC session as a one-click chip. Usage: /new-thread [brief description of what the new thread should do]. Calls mcp__ccd_session__spawn_task immediately — no plan mode.
+description: Spin off a live parallel CC session as a chip. Claude synthesises the relevant context from the current conversation and calls spawn_task — no copy-paste, no context loss. Usage: /new-thread [objective]. No plan mode.
 ---
 
 # /new-thread — Spin off a new CC session
@@ -24,14 +24,24 @@ Call `ToolSearch` with `{ "query": "select:mcp__ccd_session__spawn_task", "max_r
 
 ---
 
-## Step 3 — Build the prompt
+## Step 3 — Synthesise context and build the prompt
 
-Construct the `prompt` string for the spawned session. It must be **self-contained** — the spawned session has no memory of this conversation.
+The spawned session has no memory of this conversation. Your job is to determine what context it actually needs to carry out the task — not to dump the whole conversation, but to extract and include only what is relevant to the new objective.
+
+Read the current conversation and identify:
+- Decisions already made that bear on the new task
+- Artefacts produced (files written, outputs generated) the new session should know about
+- Constraints or ruling-outs that would otherwise be rediscovered the hard way
+- Any framing or background the new session needs to start without false assumptions
+
+Then construct the `prompt` string:
 
 ```
 Date: <today from currentDate system context>
 
 Task: <the brief verbatim>
+
+Context: <synthesised relevant context from the current session — omit if nothing material applies>
 ```
 
 Close the prompt with:
