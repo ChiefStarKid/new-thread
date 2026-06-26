@@ -71,10 +71,7 @@ Claude Code already ships two ways to manage a session that has grown too big or
 
 Put differently: `/fork` asks "what if I copied this entire conversation and kept going?" `/new-thread` asks "what's the smallest brief that lets a fresh session do this one thing, while I carry on here?"
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/workflow-comparison-dark.svg">
-  <img alt="Three ways to handle an off-shoot: /compact summarises one thread in place; /fork branches the whole context and you leave the original behind; /new-thread keeps your main thread unbroken while a lean spawn peels off in parallel and loops the answer back." src="assets/workflow-comparison-light.svg" width="100%">
-</picture>
+![Three ways to handle an off-shoot: /compact summarises one thread in place; /fork branches the whole context and you leave the original behind; /new-thread keeps your main thread unbroken while a long independent spawn does the heavy work and only the answer returns.](assets/workflow-comparison-dark.svg)
 
 ---
 
