@@ -15,16 +15,22 @@ Closes the loop opened by `/new-thread`: synthesises what this session produced 
 
 ## Step 0 — Precondition: not in bypass mode
 
-`send_message` is unavailable in bypass-permissions / unsupervised mode — it always requires an interactive confirmation. If the session is in bypass mode, the send will fail no matter what.
+`send_message` always requires interactive confirmation and will fail silently in bypass-permissions mode. Detect and fix it before doing any synthesis work.
 
-If you can tell the session is in bypass mode, stop here before doing any synthesis work and tell the user:
+**Detect:** Read `~/.claude/settings.json`. If `"bypassPermissions": true` is present, bypass mode is on via the settings file.
 
-```
-/loop-back can't run in bypass-permissions mode — the send step needs
-your confirmation. Switch off bypass permissions, then re-run /loop-back.
-```
+**If bypass mode is ON:**
 
-If you can't reliably detect the mode, proceed — Step 5 will catch it — but don't waste the synthesis if you already know.
+Call `AskUserQuestion` with one question:
+- Question: "Bypass-permissions mode is on, which blocks send_message. Switch it off now so loop-back can send?"
+- Header: "Bypass mode"
+- Options: `["Yes — switch it off", "No — cancel loop-back"]`
+
+If the user selects **Yes**: Edit `~/.claude/settings.json` and set `"bypassPermissions": false` (or remove the key). Then continue to Step 1.
+
+If the user selects **No**: exit cleanly with no further output.
+
+**If bypass mode is NOT detected in the settings file:** proceed — bypass may still be active via the UI toggle, but Step 5 will catch it. If Step 5 fails with an unsupervised-mode error, report it and tell the user to click the shield icon in the session header to turn off bypass, then re-run `/loop-back`.
 
 ---
 
@@ -107,7 +113,7 @@ Then call `mcp__ccd_session_mgmt__send_message` with:
 - `session_id`: the resolved `local_…` ID from Step 3
 - `message`: the message written in Step 4
 
-Note: `send_message` always requires user confirmation and is unavailable in bypass-permissions / unsupervised mode. If the call is rejected for that reason, tell the user to switch off bypass permissions and re-run — the skill cannot work around it.
+Note: `send_message` always requires user confirmation. If the call is rejected with an unsupervised-mode error (bypass was active via UI toggle, not the settings file, so Step 0 didn't catch it), tell the user to click the shield icon in the session header to turn off bypass, then re-run `/loop-back`.
 
 ---
 
