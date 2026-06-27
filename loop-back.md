@@ -5,9 +5,26 @@ description: Synthesise this session's findings and fire a chip back to the root
 
 # /loop-back — Return findings to the root session
 
-Closes the loop opened by `/new-thread`: synthesises what this session produced and fires a `spawn_task` chip addressed to the root session.
+Closes the loop opened by `/new-thread`: synthesises what this session produced and delivers it as a message straight into the root session that spawned it.
+
+**This delivers a message-turn into the root, NOT a chip.** No tool can place a chip into another session — `spawn_task` only creates chips in the *current* session, and `send_message` (the only tool that targets another session by ID) delivers a user turn labelled "From `<this title>`" with a backlink. A message-turn is the right mechanism anyway: the findings land inside the root's conversation as an actionable turn, rather than as a separate spawn the user must click to start. Do not try to route a chip to the root — it is not possible.
 
 **Do NOT enter plan mode. Execute immediately.**
+
+---
+
+## Step 0 — Precondition: not in bypass mode
+
+`send_message` is unavailable in bypass-permissions / unsupervised mode — it always requires an interactive confirmation. If the session is in bypass mode, the send will fail no matter what.
+
+If you can tell the session is in bypass mode, stop here before doing any synthesis work and tell the user:
+
+```
+/loop-back can't run in bypass-permissions mode — the send step needs
+your confirmation. Switch off bypass permissions, then re-run /loop-back.
+```
+
+If you can't reliably detect the mode, proceed — Step 5 will catch it — but don't waste the synthesis if you already know.
 
 ---
 
@@ -16,11 +33,11 @@ Closes the loop opened by `/new-thread`: synthesises what this session produced 
 Scan the conversation context for the two fields injected by `/new-thread`:
 
 ```
-Root session ID: <UUID>
+Root session ID: <id>
 Root session title: <title>
 ```
 
-**If either field is missing → hard error:**
+**If both are missing → hard error:**
 
 ```
 /loop-back only works in sessions spawned by /new-thread.
@@ -35,165 +52,71 @@ Then call `AskUserQuestion` with one question:
 - Header: "Manual root"
 - Options: `["Yes — I'll paste the ID", "No — cancel"]`
 
-If the user selects **Yes**: ask a follow-up `AskUserQuestion` for the root session ID (free text) and root session title (free text), then continue with those values.
+If the user selects **Yes**: ask a follow-up `AskUserQuestion` for the root session title (free text), then continue — Step 3 will resolve the live ID from the title.
 
 If the user selects **No**: exit cleanly with no further output.
 
 ---
 
-## Step 2 — Load the spawn_task schema
+## Step 2 — Load the session tools
 
-Call `ToolSearch` with `{ "query": "select:mcp__ccd_session__spawn_task", "max_results": 1 }`.
-
----
-
-## Step 3 — Synthesise the return payload
-
-Read the current conversation and extract:
-
-- **What was produced** — files written, decisions made, findings confirmed, outputs generated
-- **What the root session should do next** — the clearest next action, if determinable
-- **Open questions or blockers** — anything unresolved that the root needs to handle
-- **What was ruled out** — approaches tried and discarded, so the root doesn't re-tread them
-
-Keep it tight. The root session has its own context; this is a handoff note, not a transcript dump.
+Call `ToolSearch` with `{ "query": "select:mcp__ccd_session_mgmt__send_message,mcp__ccd_session_mgmt__list_sessions,mcp__ccd_session_mgmt__search_session_transcripts", "max_results": 3 }`.
 
 ---
 
-## Step 4 — Build the chip prompt
+## Step 3 — Resolve the LIVE session ID
 
-Classify the return by what the root needs to do with it:
+**Do not trust the `Root session ID` from the header as-is.** It is captured from the JSONL transcript filename (a raw UUID), but `send_message` requires the `local_`-prefixed session ID from `list_sessions` — a different namespace. The header ID will not resolve directly.
 
-| Return type | Use when |
-|---|---|
-| **Findings** | This session answered a question or completed research; root needs to act on the answer |
-| **Deliverable ready** | This session produced an artefact (file, draft, script); root needs to review or deploy it |
-| **Blocked** | This session hit a wall; root needs to decide or unblock before work can continue |
-| **Decision needed** | This session surfaced options; root needs to choose |
+Resolve the real, currently-live ID:
 
-Build the prompt using the matching template:
+1. Call `list_sessions` and look for an entry whose `title` matches `Root session title` from the header.
+2. Titles drift — a session can rename itself mid-run. If no title matches, call `search_session_transcripts` with a phrase unique to this thread's spawn (e.g. this session's own title, which the root logged as `Thread chip created: "<this title>"`). The hit's `sessionId` is the root.
+3. Prefer a session with `isRunning: true` when there is ambiguity.
+4. If nothing resolves, report it and stop — do not send to the header ID blindly.
 
-### Findings / Research complete
-
-```
-Date: <today from currentDate system context>
-Root session ID: <root session ID>
-Root session title: <root session title>
-
-Task: <one-line summary of what this session was asked to do>
-
-Return type: Findings
-
-Summary:
-<what was discovered — 3–6 bullets>
-
-Recommended next action:
-<what the root session should do now>
-
-Ruled out:
-<approaches tried and discarded — omit if none>
-
-Open questions:
-<anything unresolved — omit if none>
-```
-
-### Deliverable ready
-
-```
-Date: <today from currentDate system context>
-Root session ID: <root session ID>
-Root session title: <root session title>
-
-Task: <one-line summary of what this session was asked to do>
-
-Return type: Deliverable ready
-
-Deliverable:
-<what was produced and where it lives — file path(s), sheet name, etc.>
-
-What to do with it:
-<review / deploy / merge / send — whatever the obvious next step is>
-
-Open questions:
-<anything the root needs to decide — omit if none>
-```
-
-### Blocked
-
-```
-Date: <today from currentDate system context>
-Root session ID: <root session ID>
-Root session title: <root session title>
-
-Task: <one-line summary of what this session was asked to do>
-
-Return type: Blocked
-
-Blocker:
-<what stopped progress>
-
-What was tried:
-<approaches attempted before hitting the wall>
-
-What the root needs to do:
-<decision or action needed to unblock>
-```
-
-### Decision needed
-
-```
-Date: <today from currentDate system context>
-Root session ID: <root session ID>
-Root session title: <root session title>
-
-Task: <one-line summary of what this session was asked to do>
-
-Return type: Decision needed
-
-Options:
-- <Option A>: <one-line case for it>
-- <Option B>: <one-line case for it>
-<add more if material>
-
-Recommendation:
-<which option and the one-sentence reason>
-
-Stakes:
-<what changes downstream depending on the choice — omit if low>
-```
+Use the resolved `local_…` `sessionId` for the send in Step 5.
 
 ---
 
-Close every prompt with:
+## Step 4 — Write the return message
 
-```
-Follow CLAUDE.md before doing anything.
-```
+First, recall **why the root spawned this thread** — the original brief is in this session's prompt header (the `Task:` / research-brief / bug-report block). The message must answer *that*, not narrate how this session went.
 
----
+Write a short, plain-English message — 3 to 6 sentences max. No headers, no structured fields.
 
-## Step 5 — Derive title and tldr
+Lead with the **answer or result the root was waiting for**. Then give the root only what it needs to act:
+- The finding, decision, or deliverable (with file path if there is one)
+- What the root should do next
 
-- **`title`**: "← <root session title truncated to 45 chars>" — the arrow signals this is a return chip
-- **`tldr`**: 1–2 sentences describing what came back and what the root needs to do. No file paths.
+**Do not include** meta-commentary about this session's own process — tools that didn't work, debugging detours, dead ends, or how many tries it took. The root doesn't care how the sausage was made; it cares about the answer.
 
----
-
-## Step 6 — Call spawn_task
-
-Call `mcp__ccd_session__spawn_task` with:
-- `title`: from Step 5
-- `tldr`: from Step 5
-- `prompt`: from Step 4
+Write it as you would a Slack message to a colleague who already knows the project and asked you this specific question. Tight and direct.
 
 ---
 
-## Step 7 — Confirm
+## Step 5 — Call send_message
 
-Output one line in chat:
+Before calling the tool, output this line:
 
 ```
-Return chip fired to "<root session title>".
+Sending findings back to "<root session title>" — you'll be asked to confirm.
+```
+
+Then call `mcp__ccd_session_mgmt__send_message` with:
+- `session_id`: the resolved `local_…` ID from Step 3
+- `message`: the message written in Step 4
+
+Note: `send_message` always requires user confirmation and is unavailable in bypass-permissions / unsupervised mode. If the call is rejected for that reason, tell the user to switch off bypass permissions and re-run — the skill cannot work around it.
+
+---
+
+## Step 6 — Confirm
+
+After the tool succeeds, output one line:
+
+```
+Done — findings delivered to "<root session title>".
 ```
 
 If the tool fails, report the error. Do not ask the user to retry manually — troubleshoot first.

@@ -18,7 +18,7 @@ This is not a copy-paste workflow. It stages a real parallel session — a separ
 
 `/new-thread` is a Claude Code custom command — a `.md` file that Claude reads and executes as a skill. No installation script, no configuration beyond setup.
 
-When the spawned session finishes, use `/loop-back` from within it to fire the findings back as a context-loaded chip.
+When the spawned session finishes, use `/loop-back` from within it to send the findings back as a message-turn directly into the root session.
 
 ---
 
@@ -32,7 +32,7 @@ Strip away the theory and here is what the skill does for you, concretely:
 
 3. **It runs in parallel.** Once started, the chip is a genuinely separate, concurrent Claude session. Stage three in ten seconds, start them, and they all work at once while you carry on. `/compact` and `/fork` are both single-threaded — one conversation at a time.
 
-4. **`/loop-back` carries the answer home automatically.** When the spawn is done, you don't copy-paste its conclusion back by hand. `/loop-back` fires a chip back into the exact session that spawned it, pre-loaded with what that session needs to continue.
+4. **`/loop-back` carries the answer home automatically.** When the spawn is done, you don't copy-paste its conclusion back by hand. `/loop-back` sends the findings as a message-turn directly into the root session — it lands as an actionable turn in the root's conversation, ready to continue from.
 
 That is the proven part — the workflow ergonomics. Stay put, auto-written brief, parallel execution, automatic return. None of it depends on a theory being right.
 
@@ -61,7 +61,7 @@ Claude Code already ships two ways to manage a session that has grown too big or
 | **Original session** | Replaced by its summary | Untouched, but you leave it | Untouched, you stay in it |
 | **Runs alongside?** | No — you continue in one thread | No — you switch to the fork | Yes — a chip runs concurrently |
 | **Off-topic pollution** | Reduced, not removed — the summary still carries every thread | Inherited in full — the fork starts with all the noise | Eliminated — the spawn starts clean on one task |
-| **Returns findings?** | N/A — never left | Manual — you carry them back yourself | `/loop-back` fires a context-loaded chip home |
+| **Returns findings?** | N/A — never left | Manual — you carry them back yourself | `/loop-back` delivers a message-turn into the root session |
 
 **The short version:**
 
@@ -153,9 +153,11 @@ The spawned session gets the ambiguity, the options in play, and what resolving 
 
 ## Companion command: /loop-back
 
-`/loop-back` closes the loop. Run it from inside a spawned session when the work is done — it synthesises the findings and fires a chip back to the root session, seeded with everything the root needs to continue.
+`/loop-back` closes the loop. Run it from inside a spawned session when the work is done — it synthesises the findings and delivers them as a message-turn directly into the root session via `send_message`. The findings land as an actionable turn inside the root's conversation, not as a separate chip to click.
 
-The return chip is classified by what the root needs to do:
+**Note:** `/loop-back` cannot place a chip into another session — `spawn_task` only creates chips in the *current* session. The message-turn mechanism is the correct design: the root gets the answer inline and can act on it immediately.
+
+The message is shaped by what the root needs to do:
 
 - **Findings** — question answered; root needs to act on the answer
 - **Deliverable ready** — artefact produced; root needs to review or deploy
@@ -189,7 +191,7 @@ One-time:
 
 No API keys. No environment variables.
 
-**Note on session ID lookup:** the skill identifies the current session by finding the most recently modified JSONL file under `~/.claude/projects/`. It uses `$USERNAME` to locate the path — no hardcoding required. This works across different users and working directories on Windows.
+**Note on session ID lookup:** the skill captures the current session title and uses `list_sessions` at loop-back time to resolve the live `local_`-prefixed session ID. The title is the primary handle — no JSONL file scanning, no hardcoded paths.
 
 ---
 
