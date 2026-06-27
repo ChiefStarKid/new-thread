@@ -1,6 +1,6 @@
 ---
 name: loop-back
-description: Synthesise this session's findings and fire a chip back to the root session that spawned it. Only works in sessions created by /new-thread.
+description: Synthesise this session's findings and deliver them as a message-turn into the root session that spawned it. Only works in sessions created by /new-thread.
 ---
 
 # /loop-back — Return findings to the root session
@@ -71,7 +71,7 @@ Call `ToolSearch` with `{ "query": "select:mcp__ccd_session_mgmt__send_message,m
 Resolve the real, currently-live ID:
 
 1. Call `list_sessions` and look for an entry whose `title` matches `Root session title` from the header.
-2. Titles drift — a session can rename itself mid-run. If no title matches, call `search_session_transcripts` with a phrase unique to this thread's spawn (e.g. this session's own title, which the root logged as `Thread chip created: "<this title>"`). The hit's `sessionId` is the root.
+2. Titles drift — a session can rename itself mid-run. If no title matches, call `search_session_transcripts` with the query `Thread chip created: "<thread title>"`, where `<thread title>` is the `Thread title:` field from **this session's own prompt header**. That exact phrase was logged by the root when it spawned this thread and will not change regardless of how the root session renamed itself since. The matching session's `sessionId` is the root.
 3. Prefer a session with `isRunning: true` when there is ambiguity.
 4. If nothing resolves, report it and stop — do not send to the header ID blindly.
 
