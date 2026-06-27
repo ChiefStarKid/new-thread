@@ -185,10 +185,18 @@ Follow CLAUDE.md before doing anything.
 
 ## Step 6 — Call spawn_task
 
+Before calling, prepend the following as the **first line** of the prompt (before `Date:`):
+
+```
+Thread title: <title from Step 5>
+```
+
+This gives the child a stable, searchable anchor it can use in `/loop-back` to find this root session, even if this session's title drifts after spawning.
+
 Call `mcp__ccd_session__spawn_task` with:
-- `title`: from Step 4
-- `tldr`: from Step 4
-- `prompt`: from Step 3
+- `title`: from Step 5
+- `tldr`: from Step 5
+- `prompt`: from Step 4 (with `Thread title:` prepended)
 - `cwd`: omit (defaults to `~`)
 
 ---
