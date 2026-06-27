@@ -164,7 +164,7 @@ The message is shaped by what the root needs to do:
 - **Blocked** — hit a wall; root needs to decide or unblock
 - **Decision needed** — options surfaced; root needs to choose
 
-**`/loop-back` only works in sessions spawned by `/new-thread`.** If fired from a rootless session it will error and offer a manual override.
+**`/loop-back` only works in sessions spawned by `/new-thread`.** Each spawned prompt includes a `Thread title:` field that `/loop-back` uses as a stable search anchor — if the root session has been renamed since spawning, the transcript search finds it anyway. If fired from a rootless session it will error and offer a manual override.
 
 Install: copy `loop-back.md` into the same `~/.claude/commands/` folder as `new-thread.md`.
 
@@ -191,7 +191,7 @@ One-time:
 
 No API keys. No environment variables.
 
-**Note on session ID lookup:** the skill captures the current session title and uses `list_sessions` at loop-back time to resolve the live `local_`-prefixed session ID. The title is the primary handle — no JSONL file scanning, no hardcoded paths.
+**Note on session ID lookup:** each child prompt now includes a `Thread title:` field — the title baked in at spawn time. `/loop-back` first tries to match the root by title via `list_sessions`. If the root has been renamed since spawning (titles drift as conversations evolve), it falls back to searching transcripts for `Thread chip created: "<thread title>"` — a phrase logged by the root at spawn time that is immutable. This makes the return path robust to title drift without requiring the root session to know its own `local_` ID.
 
 ---
 
