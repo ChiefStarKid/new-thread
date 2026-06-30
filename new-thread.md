@@ -25,9 +25,12 @@ Before loading the schema, identify the current session so the spawn can referen
 **The captured ID must be the `local_`-prefixed session ID that `list_sessions` / `send_message` use** — NOT the raw UUID from the JSONL transcript filename. They are different namespaces; an ID in the wrong namespace cannot be resolved by `/loop-back` later.
 
 1. Load the lookup tool: `ToolSearch` with `{ "query": "select:mcp__ccd_session_mgmt__list_sessions", "max_results": 1 }`.
-2. Note the current session title from the conversation context.
+2. Read the current session title. **CRITICAL — copy it verbatim:**
+   - The title is the exact string shown in the Claude Code window title bar (or the session tab label). It is set by the runtime, not inferred from the conversation.
+   - **Do NOT synthesise, paraphrase, or describe the conversation topic.** If you cannot see the exact runtime title, leave the field blank — a wrong title is worse than a missing one because `/loop-back` will silently match the wrong session.
+   - In practice the title often appears in the conversation context or system prompt (e.g. as "Thread title: …"). Copy it character-for-character from there.
 3. The current session is **excluded** from `list_sessions`, so it cannot return its own ID directly. Capture instead:
-   - `Root session title` — the current session title (the primary handle `/loop-back` resolves against).
+   - `Root session title` — the verbatim runtime title from step 2 (the primary handle `/loop-back` resolves against).
    - `Root session ID` — best-effort. If the runtime exposes the current `local_…` session ID, use it. Otherwise record the raw transcript UUID and mark it `(transcript UUID — resolve live via title)` so `/loop-back` knows not to trust it directly.
 
 `/loop-back` resolves the live ID from `Root session title` at send time (titles can drift, IDs can go stale), so the title is the field that matters most here.
@@ -98,6 +101,8 @@ Extract from the current conversation:
 
 ```
 Date: <today from currentDate system context>
+Root session ID: <UUID from Step 2>
+Root session title: <title from Step 2>
 
 Task: <the brief verbatim>
 
@@ -119,6 +124,8 @@ Extract from the current conversation:
 
 ```
 Date: <today from currentDate system context>
+Root session ID: <UUID from Step 2>
+Root session title: <title from Step 2>
 
 Task: <the brief verbatim>
 
@@ -139,6 +146,8 @@ Extract from the current conversation:
 
 ```
 Date: <today from currentDate system context>
+Root session ID: <UUID from Step 2>
+Root session title: <title from Step 2>
 
 Task: <the brief verbatim>
 
@@ -160,6 +169,8 @@ Read the current conversation and identify:
 
 ```
 Date: <today from currentDate system context>
+Root session ID: <UUID from Step 2>
+Root session title: <title from Step 2>
 
 Task: <the brief verbatim>
 
