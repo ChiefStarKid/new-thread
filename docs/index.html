@@ -13,7 +13,8 @@ h1{font-size:15px;font-weight:500;color:#ECEAE2;margin-bottom:4px;text-align:cen
 .card{background:#1A1A18;border:0.5px solid #2A2A27;border-radius:14px;padding:20px 20px 16px;width:100%;max-width:720px}
 .card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
 .card-title{font-size:12px;color:#6B6A64}
-.rbtn{background:none;border:0.5px solid #3A3A36;color:#6B6A64;font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer}
+.rbtn{background:none;border:1px solid #D97706;color:#D97706;font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer}
+.rbtn:hover{background:rgba(217,119,6,.08)}
 button,textarea{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 .shell{position:relative;height:520px;border-radius:10px;overflow:hidden}
 .app{display:flex;height:520px;background:#1A1A18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
@@ -66,7 +67,7 @@ button,textarea{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-ser
 .sbtn.off{background:#252523;border:0.5px solid #3A3A36;opacity:.3;pointer-events:none}
 .sbar{flex-shrink:0;height:26px;display:flex;align-items:center;padding:0 10px;justify-content:space-between}
 .bp{font-size:9.5px;padding:2px 6px;border-radius:3px}
-.bp.on{background:#3A2F00;border:0.5px solid #6B5500;color:#FAC775}
+.bp.auto{background:#252523;border:0.5px solid #3A3A36;color:#6B6A64}
 .bp.off{background:#1A2A1A;border:0.5px solid #2A4A2A;color:#5DCAA5}
 .mi{font-size:9.5px;color:#5F5E5A;display:flex;align-items:center;gap:4px}
 .midot{width:5px;height:5px;border-radius:50%;background:#1D9E75}
@@ -162,7 +163,7 @@ footer a:hover{text-decoration:underline}
           <button class="sbtn" id="sbtn" onclick="handleSend()"><i class="ti ti-corner-down-left" style="font-size:13px"></i></button>
         </div>
         <div class="sbar">
-          <div class="bp on" id="bp-badge">Bypass permissions</div>
+          <div class="bp auto" id="bp-badge">Auto</div>
           <div class="mi"><div class="midot"></div>Sonnet 4.6 · Low</div>
         </div>
       </div>
@@ -180,12 +181,12 @@ footer a:hover{text-decoration:underline}
       <button class="ch-launch" id="ch-launch-btn" onclick="launch()"><span id="launch-lbl">Start locally</span> ▾</button>
     </div>
 
-    <div class="co arr-down on" id="co1" style="bottom:72px;right:4px">click to send</div>
-    <div class="co arr-right"   id="co2" style="top:214px;right:250px">click to launch</div>
-    <div class="co arr-left"   id="co3" style="top:118px;left:228px">click to switch to spawn</div>
-    <div class="co arr-down"   id="co4" style="bottom:72px;right:4px">click to send</div>
-    <div class="co arr-left"   id="co5" style="top:180px;left:228px">findings waiting — switch back</div>
-    <div class="co arr-down"   id="co6" style="bottom:102px;right:4px">click to approve</div>
+    <div class="co arr-down on" id="co1">click to send</div>
+    <div class="co arr-right"  id="co2">click to launch</div>
+    <div class="co arr-left"   id="co3">click to switch to spawn</div>
+    <div class="co arr-down" id="co4" style="max-width:200px;white-space:normal;text-align:center;line-height:1.45">When done, /loop-back sends only the crucial findings back to root.<br><span style="opacity:.75;font-size:9.5px">click ↵ to send</span></div>
+    <div class="co arr-left"   id="co5">findings waiting — switch back</div>
+    <div class="co arr-down"   id="co6">click to approve</div>
 
     <div class="hl on" id="hl1"></div>
     <div class="hl"    id="hl2"></div>
@@ -246,6 +247,37 @@ function posHL(hlId,targetEl,pad){
   h.style.width=(er.width+pad*2)+'px';h.style.height=(er.height+pad*2)+'px';
   h.style.borderRadius=window.getComputedStyle(targetEl).borderRadius||'6px';
 }
+function posCO(coId,targetEl,dir,gap){
+  if(!targetEl)return;
+  gap=gap==null?8:gap;
+  var ARROW=6;
+  var shell=document.getElementById('shell');
+  var sr=shell.getBoundingClientRect();
+  var er=targetEl.getBoundingClientRect();
+  var co=document.getElementById(coId);
+  var coW=co.offsetWidth||80;
+  var coH=co.offsetHeight||28;
+  var sw=shell.offsetWidth;
+  var t=er.top-sr.top;
+  var l=er.left-sr.left;
+  var r=er.right-sr.left;
+  var eh=er.height;
+  co.style.bottom='';
+  if(dir==='above'){
+    co.style.top=(t-coH-ARROW-gap)+'px';
+    var cx=l+er.width/2-coW/2;
+    co.style.left=Math.min(Math.max(cx,4),sw-coW-4)+'px';
+    co.style.right='';
+  } else if(dir==='left'){
+    co.style.top=(t+eh/2-coH/2)+'px';
+    co.style.right=(sw-l+gap+ARROW)+'px';
+    co.style.left='';
+  } else if(dir==='right'){
+    co.style.top=(t+eh/2-coH/2)+'px';
+    co.style.left=(r+gap+ARROW)+'px';
+    co.style.right='';
+  }
+}
 function measureAll(){
   posHL('hl1',document.getElementById('sbtn'));
   posHL('hl4',document.getElementById('sbtn'));
@@ -253,6 +285,12 @@ function measureAll(){
   posHL('hl3',document.getElementById('spawn-si'));
   posHL('hl5',document.getElementById('root-si'));
   posHL('hl6',document.getElementById('allow-btn'));
+  // Always position — targets are always in DOM
+  var ALWAYS={co1:{el:'sbtn',dir:'above'},co4:{el:'sbtn',dir:'above'},co3:{el:'spawn-si',dir:'right'},co5:{el:'root-si',dir:'right'},co6:{el:'allow-btn',dir:'above'}};
+  Object.keys(ALWAYS).forEach(function(id){posCO(id,document.getElementById(ALWAYS[id].el),ALWAYS[id].dir);});
+  // Only when visible — target is inside the chip and may be transformed/hidden
+  var co2=document.getElementById('co2');
+  if(co2&&co2.classList.contains('on')) posCO('co2',document.getElementById('ch-launch-btn'),'left');
 }
 setTimeout(measureAll,50);setTimeout(measureAll,300);
 function handleSend(){
@@ -320,8 +358,7 @@ function renderRootView(){
   document.getElementById('inp').style.color=STATE==='idle'?'#ECEAE2':'#5F5E5A';
   document.getElementById('sbtn').className='sbtn'+(STATE!=='idle'?' off':'');
   document.getElementById('thinking').classList.remove('on');document.getElementById('sim-btn').style.display='none';document.getElementById('perm-bar').classList.remove('on');
-  pair('co4','hl4',false);pair('co6','hl6',false);
-  document.getElementById('bp-badge').className='bp on';document.getElementById('bp-badge').textContent='Bypass permissions';
+  pair('co4','hl4',false);pair('co6','hl6',false);  document.getElementById('bp-badge').className='bp auto';document.getElementById('bp-badge').textContent='Auto';
 }
 function renderSpawnView(){
   var msgs=document.getElementById('msgs');msgs.innerHTML='';
@@ -374,8 +411,7 @@ function simulateWork(){
 function restart(){
   STATE='idle';curSel=0;curView='root';
   ['co1','co2','co3','co4','co5','co6','hl1','hl2','hl3','hl4','hl5','hl6'].forEach(function(id){vis(id,false);});
-  document.getElementById('chip').classList.remove('on');document.getElementById('thinking').classList.remove('on');document.getElementById('spin').classList.remove('on');
-  document.getElementById('spawn-si').style.display='none';document.getElementById('spawn-si').style.color='#9C9A92';
+  document.getElementById('chip').classList.remove('on');document.getElementById('thinking').classList.remove('on');document.getElementById('spin').classList.remove('on');  document.getElementById('spawn-si').style.display='none';document.getElementById('spawn-si').style.color='#9C9A92';
   document.getElementById('spawn-dot').className='dot run';
   document.getElementById('root-si').classList.add('active');document.getElementById('spawn-si').classList.remove('active');
   document.getElementById('tname').textContent='Token refresh bug';document.getElementById('launch-lbl').textContent='Start locally';
