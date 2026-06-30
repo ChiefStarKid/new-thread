@@ -2,6 +2,8 @@
 
 > **Requires Claude Code Desktop.** The skill calls `spawn_task`, which creates the suggested-task chip — a Desktop-only feature. It won't work in the terminal CLI or web. Examples use Windows paths.
 
+**[▶ Try the interactive demo](https://chiefstarkid.github.io/new-thread/)** — click through the full `/new-thread` + `/loop-back` flow in your browser.
+
 If you're working in a long Claude Code session and a new task comes up — one that shouldn't interrupt what you're doing, and shouldn't inherit all the context you've built up — this skill handles the handoff.
 
 `/new-thread [objective]` reads the current session, extracts only the context the new task needs, and calls `spawn_task` to launch a fresh parallel Claude session as a chip. You stay in your current thread. The new one starts focused, not burdened.

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>/new-thread + /loop-back — Claude Code Desktop demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0F0F0E;color:#ECEAE2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px}
+h1{font-size:15px;font-weight:500;color:#ECEAE2;margin-bottom:4px;text-align:center}
+.sub{font-size:12px;color:#5F5E5A;margin-bottom:20px;text-align:center}
+.card{background:#1A1A18;border:0.5px solid #2A2A27;border-radius:14px;padding:20px 20px 16px;width:100%;max-width:720px}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-title{font-size:12px;color:#6B6A64}
+.rbtn{background:none;border:0.5px solid #3A3A36;color:#6B6A64;font-size:11px;padding:4px 10px;border-radius:5px;cursor:pointer}
+button,textarea{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.shell{position:relative;height:520px;border-radius:10px;overflow:hidden}
+.app{display:flex;height:520px;background:#1A1A18;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.sb{width:220px;flex-shrink:0;background:#141412;border-right:0.5px solid #2A2A27;display:flex;flex-direction:column}
+.sb-tabs{display:flex;border-bottom:0.5px solid #2A2A27;flex-shrink:0}
+.sb-tab{flex:1;padding:9px 0;text-align:center;font-size:12px;color:#5F5E5A}
+.sb-tab.on{color:#ECEAE2;border-bottom:1.5px solid #ECEAE2}
+.sb-top{padding:4px 8px;border-bottom:0.5px solid #2A2A27;flex-shrink:0}
+.sb-btn{width:100%;text-align:left;background:none;border:none;padding:4px 6px;font-size:11px;color:#9C9A92;border-radius:4px;cursor:pointer}
+.sb-sec{padding:5px 10px 2px;font-size:10px;color:#5F5E5A;letter-spacing:.05em;text-transform:uppercase;flex-shrink:0}
+.si-wrap{flex:1;padding:2px 6px;overflow:hidden}
+.si{width:100%;text-align:left;background:none;border:none;padding:4px 6px;border-radius:5px;font-size:11px;color:#6B6A64;display:flex;align-items:center;gap:6px;cursor:pointer;overflow:hidden;white-space:nowrap;margin-bottom:1px}
+.si:hover{background:#222220;color:#9C9A92}
+.si.active{background:#2A2A27;color:#ECEAE2}
+.dot{width:7px;height:7px;border-radius:50%;border:1px solid #5F5E5A;flex-shrink:0}
+.dot.on{background:#ECEAE2;border-color:#ECEAE2}
+.dot.run{background:#1D9E75;border-color:#1D9E75;animation:dp 1.5s infinite}
+.dot.done{background:#534AB7;border-color:#534AB7}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.35}}
+.si-n{overflow:hidden;text-overflow:ellipsis;flex:1}
+.sb-foot{padding:5px 12px;font-size:11px;color:#5F5E5A;border-top:0.5px solid #2A2A27;flex-shrink:0}
+.sb-user{padding:7px 10px;border-top:0.5px solid #2A2A27;display:flex;align-items:center;gap:7px;font-size:11px;color:#9C9A92;flex-shrink:0}
+.uav{width:20px;height:20px;border-radius:50%;background:#2A2A27;border:0.5px solid #3A3A36;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{height:40px;flex-shrink:0;border-bottom:0.5px solid #2A2A27;display:flex;align-items:center;padding:0 14px;gap:8px}
+.tname{font-size:12px;color:#ECEAE2;font-weight:500;flex:1}
+.tspin{display:none;gap:3px;align-items:center}
+.tspin.on{display:flex}
+.tspin span{width:4px;height:4px;border-radius:50%;background:#5DCAA5;animation:blink 1.2s infinite}
+.tspin span:nth-child(2){animation-delay:.2s}.tspin span:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.msgs{flex:1;padding:12px 16px 6px;display:flex;flex-direction:column;gap:7px;overflow-y:auto;overflow-x:hidden}
+.msg{display:flex;gap:8px;align-items:flex-start;opacity:0;transform:translateY(4px);transition:opacity .2s,transform .2s;flex-shrink:0}
+.msg.show,.msg.visible{opacity:1;transform:none}
+.msg.r{flex-direction:row-reverse}
+.av{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600}
+.avc{background:#5DCAA5;color:#04342C}.avu{background:#7F77DD;color:#26215C}
+.bub{max-width:82%;padding:6px 10px;border-radius:10px;font-size:10.5px;line-height:1.55;color:#C9C7BD;background:#252523}
+.bub.u{background:#2D2A42;color:#C9C8E8}
+.bub.sys{background:#1A1A18;border:0.5px solid #3A3A36;color:#6B6A64;font-size:10px;line-height:1.6;max-width:100%}
+.bub.ret{background:#1C1A2E;border:0.5px solid #3A3066;color:#B8B4E8;max-width:100%}
+.ret-from{font-size:9px;color:#7B75CC;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.bub code{font-family:monospace;font-size:9.5px;background:#1A1A18;padding:1px 4px;border-radius:3px;color:#9FE1CB}
+.tool-row{display:flex;align-items:center;gap:5px;padding:3px 0;font-size:9.5px}
+.tool-dot{width:5px;height:5px;border-radius:50%;background:#1D9E75;flex-shrink:0}
+.thinking{flex-shrink:0;padding:4px 16px;display:none;align-items:center;gap:7px;font-size:10px;color:#5F5E5A}
+.thinking.on{display:flex}
+.ibar{flex-shrink:0;padding:6px 10px;display:flex;align-items:flex-end;gap:6px;border-top:0.5px solid #2A2A27}
+.sbtn{width:26px;height:26px;background:#534AB7;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:13px}
+.sbtn.off{background:#252523;border:0.5px solid #3A3A36;opacity:.3;pointer-events:none}
+.sbar{flex-shrink:0;height:26px;display:flex;align-items:center;padding:0 10px;justify-content:space-between}
+.bp{font-size:9.5px;padding:2px 6px;border-radius:3px}
+.bp.on{background:#3A2F00;border:0.5px solid #6B5500;color:#FAC775}
+.bp.off{background:#1A2A1A;border:0.5px solid #2A4A2A;color:#5DCAA5}
+.mi{font-size:9.5px;color:#5F5E5A;display:flex;align-items:center;gap:4px}
+.midot{width:5px;height:5px;border-radius:50%;background:#1D9E75}
+.perm-bar{flex-shrink:0;background:#1A1A18;border-top:1px solid #3A3A36;padding:8px 12px;display:none;flex-direction:column;gap:6px}
+.perm-bar.on{display:flex}
+.perm-json{background:#0F0F0E;border:0.5px solid #2A2A27;border-radius:5px;padding:6px 8px;font-family:monospace;font-size:9px;color:#9FE1CB;line-height:1.6;white-space:pre}
+.perm-btns{display:flex;justify-content:space-between;align-items:center}
+.pbtn-deny{font-size:10px;padding:4px 12px;border-radius:5px;border:0.5px solid #3A3A36;background:#252523;color:#9C9A92;cursor:pointer}
+.pbtn-allow{font-size:10px;padding:4px 12px;border-radius:5px;border:none;background:#534AB7;color:#fff;cursor:pointer;display:flex;align-items:center;gap:4px}
+.chip{position:absolute;top:44px;right:14px;width:228px;background:#1E1E1C;border:0.5px solid #3A3A36;border-radius:10px;padding:10px 10px 9px;z-index:20;box-shadow:0 6px 24px rgba(0,0,0,.55);opacity:0;transform:translateY(-6px) scale(.97);transition:opacity .3s,transform .3s;pointer-events:none}
+.chip.on{opacity:1;transform:none;pointer-events:auto}
+.ch-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ch-lbl{font-size:9.5px;color:#5F5E5A;text-transform:uppercase;letter-spacing:.04em}
+.ch-x{background:none;border:none;color:#5F5E5A;font-size:12px;cursor:pointer;padding:0;line-height:1}
+.ch-title{font-size:11.5px;font-weight:500;color:#ECEAE2;margin-bottom:2px}
+.ch-desc{font-size:9.5px;color:#6B6A64;line-height:1.4;margin-bottom:8px}
+.ch-opts{background:#2C2C29;border:0.5px solid #3A3A36;border-radius:6px;overflow:hidden;margin-bottom:6px}
+.ch-opt{width:100%;padding:6px 9px;font-size:10.5px;display:flex;align-items:center;background:none;border:none;color:#ECEAE2;text-align:left;cursor:pointer}
+.ch-opt+.ch-opt{border-top:0.5px solid #3A3A36}
+.ch-opt:hover{background:#3A3A36}
+.ch-opt-name{flex:1}
+.ch-badge{font-size:8.5px;color:#7A7060;background:#2A2218;border:0.5px solid #4A3E28;padding:1px 4px;border-radius:3px;margin-right:5px}
+.ch-check{color:#5DCAA5;font-size:11px;visibility:hidden;flex-shrink:0}
+.ch-opt.sel .ch-check{visibility:visible}
+.ch-launch{width:100%;background:#534AB7;color:#fff;border:none;border-radius:6px;height:26px;font-size:10.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.ch-launch:hover{background:#4A42A5}
+.co{position:absolute;background:#D97706;color:#fff;font-size:10.5px;padding:5px 9px;border-radius:7px;pointer-events:none;opacity:0;transition:opacity .25s;z-index:32;white-space:nowrap}
+.co.on{opacity:1}
+.co::after{content:'';position:absolute;border:6px solid transparent}
+.co.arr-down::after{border-top-color:#D97706;top:100%;left:50%;transform:translateX(-50%)}
+.co.arr-right::after{border-left-color:#D97706;left:100%;top:50%;transform:translateY(-50%)}
+.co.arr-left::after{border-right-color:#D97706;right:100%;top:50%;transform:translateY(-50%)}
+.hl{position:absolute;border:1.5px solid #D97706;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .25s;z-index:28}
+.hl.on{opacity:1;animation:hlp 1.4s ease-in-out infinite}
+@keyframes hlp{0%,100%{box-shadow:0 0 0 2px rgba(217,119,6,.15)}60%{box-shadow:0 0 0 5px rgba(217,119,6,.35)}}
+footer{margin-top:16px;font-size:11px;color:#3A3A36;text-align:center}
+footer a{color:#534AB7;text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<h1>/new-thread + /loop-back</h1>
+<p class="sub">Claude Code Desktop — interactive flow walkthrough</p>
+
+<div class="card">
+  <div class="card-head">
+    <span class="card-title">Claude Code Desktop mockup</span>
+    <button class="rbtn" onclick="restart()">↺ restart</button>
+  </div>
+
+  <div class="shell" id="shell">
+    <div class="app">
+      <div class="sb">
+        <div class="sb-tabs"><div class="sb-tab">Home</div><div class="sb-tab on">Code</div></div>
+        <div class="sb-top"><button class="sb-btn">New session</button><button class="sb-btn">Routines</button></div>
+        <div class="sb-sec">Local</div>
+        <div class="si-wrap">
+          <button class="si" id="spawn-si" style="display:none;color:#9C9A92" onclick="switchTo('spawn')"><div class="dot run" id="spawn-dot"></div><div class="si-n">Fix token refresh error</div></button>
+          <button class="si" style="color:#444441"><span style="font-size:9px;margin-right:1px">…</span><div class="si-n">Publishing new-thread</div></button>
+          <button class="si active" id="root-si" onclick="switchTo('root')"><div class="dot on"></div><div class="si-n">Token refresh bug</div></button>
+          <button class="si"><div class="dot"></div><div class="si-n">Q3 update draft</div></button>
+        </div>
+        <div class="sb-foot">Show 519 more</div>
+        <div class="sb-user"><div class="uav">J</div>Joseph<span style="font-size:10px;background:#2A2A27;color:#6B6A64;padding:1px 5px;border-radius:3px">Pro</span></div>
+      </div>
+      <div class="main">
+        <div class="topbar"><div class="tname" id="tname">Token refresh bug</div><div class="tspin" id="spin"><span></span><span></span><span></span></div></div>
+        <div class="msgs" id="msgs"><div class="msg visible"><div class="av avc">C</div><div class="bub">Intermittent — want to check the token TTL config before patching the retry logic.</div></div></div>
+        <div class="thinking" id="thinking"><span style="width:5px;height:5px;border-radius:50%;background:#5DCAA5;display:inline-block"></span><span>working…</span></div>
+        <button id="sim-btn" onclick="simulateWork()" style="display:none;background:#D97706;border:none;color:#1A0F00;font-size:10.5px;font-weight:700;padding:6px 14px;border-radius:6px;cursor:pointer;align-self:center;margin:4px auto 6px">▶ Simulate work in spawned thread</button>
+        <div class="perm-bar" id="perm-bar">
+          <div style="display:flex;align-items:flex-start;gap:6px">
+            <span style="color:#E05252;font-size:12px;margin-top:1px">●</span>
+            <div style="flex:1">
+              <div style="font-size:10.5px;font-weight:500;color:#ECEAE2">Allow Claude to use send_message (ccd_session_mgmt)?</div>
+              <div style="font-size:9.5px;color:#6B6A64;font-style:italic;margin-top:2px">This tool requires explicit approval regardless of permission mode.</div>
+            </div>
+          </div>
+          <div class="perm-json">{
+  "session_id": "local_34fb481a-a618-4213-b582-8014c2328a81",
+  "message": "Root cause: refreshToken() in auth.ts:84 exits on first 401 — no retry. Fixed with withRetry (1 retry, 500ms) + concurrent guard. Logout unaffected. Coverage 84%→93%."
+}</div>
+          <div class="perm-btns">
+            <span style="font-size:9px;color:#5F5E5A">Ask permissions</span>
+            <div style="display:flex;gap:6px">
+              <button class="pbtn-deny" onclick="denyPerm()">Deny <span style="color:#5F5E5A">1</span></button>
+              <button class="pbtn-allow" id="allow-btn" onclick="allowPerm()">Allow once <span style="background:#3A3566;border-radius:3px;padding:1px 4px;font-size:9px;color:#9C97E8">Ctrl+Enter</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="ibar">
+          <textarea id="inp" rows="1" style="flex:1;background:#252523;border:0.5px solid #3A3A36;border-radius:8px;padding:7px 9px;font-size:10.5px;color:#ECEAE2;outline:none;resize:none;line-height:1.5;min-height:32px;font-family:inherit">/new-thread fix the token refresh error we just saw</textarea>
+          <button class="sbtn" id="sbtn" onclick="handleSend()"><i class="ti ti-corner-down-left" style="font-size:13px"></i></button>
+        </div>
+        <div class="sbar">
+          <div class="bp on" id="bp-badge">Bypass permissions</div>
+          <div class="mi"><div class="midot"></div>Sonnet 4.6 · Low</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chip" id="chip">
+      <div class="ch-top"><span class="ch-lbl">Suggested task</span><button class="ch-x" onclick="dismissChip()">✕</button></div>
+      <div class="ch-title">Fix token refresh error</div>
+      <div class="ch-desc">Diagnoses the refresh failure and proposes a targeted fix in auth.ts</div>
+      <div class="ch-opts">
+        <button class="ch-opt sel" id="opt0" onclick="selectOpt(0,'Start locally')"><span class="ch-opt-name">Start locally</span><span class="ch-check">✓</span></button>
+        <button class="ch-opt" id="opt1" onclick="selectOpt(1,'Send to cloud')"><span class="ch-opt-name">Send to cloud</span><span class="ch-badge">not in demo</span><span class="ch-check">✓</span></button>
+        <button class="ch-opt" id="opt2" onclick="selectOpt(2,'Fix in this session')"><span class="ch-opt-name">Fix in this session</span><span class="ch-badge">not in demo</span><span class="ch-check">✓</span></button>
+      </div>
+      <button class="ch-launch" id="ch-launch-btn" onclick="launch()"><span id="launch-lbl">Start locally</span> ▾</button>
+    </div>
+
+    <div class="co arr-down on" id="co1" style="bottom:72px;right:4px">click to send</div>
+    <div class="co arr-right"   id="co2" style="top:214px;right:250px">click to launch</div>
+    <div class="co arr-left"   id="co3" style="top:118px;left:228px">click to switch to spawn</div>
+    <div class="co arr-down"   id="co4" style="bottom:72px;right:4px">click to send</div>
+    <div class="co arr-left"   id="co5" style="top:180px;left:228px">findings waiting — switch back</div>
+    <div class="co arr-down"   id="co6" style="bottom:102px;right:4px">click to approve</div>
+
+    <div class="hl on" id="hl1"></div>
+    <div class="hl"    id="hl2"></div>
+    <div class="hl"    id="hl3"></div>
+    <div class="hl"    id="hl4"></div>
+    <div class="hl"    id="hl5"></div>
+    <div class="hl"    id="hl6"></div>
+  </div>
+</div>
+
+<footer>
+  <a href="https://github.com/ChiefStarKid/new-thread">ChiefStarKid/new-thread</a> — Claude Code custom commands
+</footer>
+
+<script>
+var STATE='idle',curSel=0,curView='root';
+var SPAWN_CONVO=[
+  {r:false,txt:'Reading root context… TTL set to 30s. <code>refreshToken()</code> in auth.ts:84 exits on first 401 — no retry.'},
+  {r:true, txt:'existing retry utility?'},
+  {r:false,txt:'Yes — retry.ts exports <code>withRetry(fn,opts)</code>, already used by the API client.'},
+  {r:true, txt:'use it. 1 retry, 500ms backoff'},
+  {r:false,txt:'Wrapping <code>refreshToken()</code>: maxAttempts 2, delay 500ms, filter 401 only…'},
+  {r:false,txt:'auth.ts patched. 8 lines changed.'},
+  {r:true, txt:'logout path affected?'},
+  {r:false,txt:'No. <code>revokeToken()</code> is separate. Logout clean.'},
+  {r:true, txt:'concurrent refresh from two tabs?'},
+  {r:false,txt:'No lock — both would attempt, second gets another 401.'},
+  {r:true, txt:'fix it'},
+  {r:false,txt:'<code>_refreshPromise</code> singleton — second caller shares the in-flight promise.'},
+  {r:false,txt:'Done. 22 lines total.'},
+  {r:true, txt:'tests?'},
+  {r:false,txt:'Adding retry + concurrent dedup tests. Running…'},
+  {r:false,txt:'Suite passes. Coverage 84% → 93%.'},
+  {r:true, txt:'anything else?'},
+  {r:false,txt:'TTL hardcoded 30s in token-config.ts — added TODO. Patch complete.'},
+];
+function scrollMsgs(){var m=document.getElementById('msgs');m.scrollTop=m.scrollHeight;}
+function addMsg(r,html,instant){
+  var m=document.createElement('div');m.className='msg'+(r?' r':'');
+  m.innerHTML='<div class="av '+(r?'avu':'avc')+'">'+(r?'J':'C')+'</div><div class="bub'+(r?' u':'')+'">'+html+'</div>';
+  document.getElementById('msgs').appendChild(m);
+  if(instant){m.classList.add('show');}else{setTimeout(function(){m.classList.add('show');scrollMsgs();},20);}
+  return m;
+}
+function addToolRow(text,instant){
+  var m=document.createElement('div');m.className='msg visible';
+  m.innerHTML='<div style="width:22px;flex-shrink:0"></div><div class="tool-row"><div class="tool-dot"></div><span style="color:#5F5E5A;font-style:italic">'+text+'</span></div>';
+  document.getElementById('msgs').appendChild(m);if(!instant)scrollMsgs();
+}
+function vis(id,on){document.getElementById(id).classList[on?'add':'remove']('on');}
+function pair(co,hl,on){vis(co,on);vis(hl,on);}
+function posHL(hlId,targetEl,pad){
+  if(!targetEl)return;pad=pad||3;
+  var sr=document.getElementById('shell').getBoundingClientRect();
+  var er=targetEl.getBoundingClientRect();
+  var h=document.getElementById(hlId);
+  h.style.top=(er.top-sr.top-pad)+'px';h.style.left=(er.left-sr.left-pad)+'px';
+  h.style.width=(er.width+pad*2)+'px';h.style.height=(er.height+pad*2)+'px';
+  h.style.borderRadius=window.getComputedStyle(targetEl).borderRadius||'6px';
+}
+function measureAll(){
+  posHL('hl1',document.getElementById('sbtn'));
+  posHL('hl4',document.getElementById('sbtn'));
+  posHL('hl2',document.getElementById('ch-launch-btn'));
+  posHL('hl3',document.getElementById('spawn-si'));
+  posHL('hl5',document.getElementById('root-si'));
+  posHL('hl6',document.getElementById('allow-btn'));
+}
+setTimeout(measureAll,50);setTimeout(measureAll,300);
+function handleSend(){
+  if(STATE==='idle'){doSend();}
+  else if(STATE==='simDone'){
+    document.getElementById('inp').value='';document.getElementById('inp').placeholder='Type a message…';document.getElementById('inp').style.color='#5F5E5A';
+    document.getElementById('sbtn').classList.add('off');
+    pair('co4','hl4',false);
+    document.getElementById('perm-bar').classList.add('on');
+    setTimeout(function(){measureAll();pair('co6','hl6',true);},30);
+    STATE='confirming';
+  }
+}
+function allowPerm(){
+  document.getElementById('perm-bar').classList.remove('on');pair('co6','hl6',false);
+  addToolRow('Used ccd_session_mgmt: send_message');
+  setTimeout(function(){
+    addMsg(false,'Done — findings delivered to <strong style="color:#ECEAE2">Token refresh bug</strong>.');
+    scrollMsgs();STATE='loopDone';
+    document.getElementById('spawn-dot').className='dot done';document.getElementById('spawn-si').style.color='#6B6A64';
+    setTimeout(function(){measureAll();pair('co5','hl5',true);},400);
+  },200);
+}
+function denyPerm(){
+  document.getElementById('perm-bar').classList.remove('on');pair('co6','hl6',false);
+  addMsg(false,'Cancelled. Re-run <code>/loop-back</code> when ready.');
+  STATE='simDone';document.getElementById('inp').value='/loop-back';document.getElementById('inp').style.color='#ECEAE2';
+  document.getElementById('sbtn').className='sbtn';setTimeout(function(){pair('co4','hl4',true);},200);
+}
+function doSend(){
+  STATE='sent';pair('co1','hl1',false);
+  var inp=document.getElementById('inp');inp.value='';inp.placeholder='Type / for commands';inp.style.color='#5F5E5A';
+  document.getElementById('sbtn').classList.add('off');
+  setTimeout(function(){addMsg(true,'<code>/new-thread</code> fix the token refresh error we just saw');},80);
+  setTimeout(function(){document.getElementById('thinking').classList.add('on');document.getElementById('spin').classList.add('on');},300);
+  setTimeout(function(){
+    document.getElementById('thinking').classList.remove('on');document.getElementById('spin').classList.remove('on');
+    addMsg(false,'Staging the spawn…<br><span style="color:#5F5E5A;font-size:9.5px">Suggesting task: Fix token refresh error ▶</span>');
+    setTimeout(function(){document.getElementById('chip').classList.add('on');setTimeout(function(){measureAll();pair('co2','hl2',true);},350);STATE='chip';},300);
+  },2500);
+}
+function selectOpt(i,val){curSel=i;document.getElementById('launch-lbl').textContent=val;for(var j=0;j<3;j++) document.getElementById('opt'+j).classList.remove('sel');document.getElementById('opt'+i).classList.add('sel');}
+function launch(){
+  if(curSel!==0)return;STATE='spawned';document.getElementById('chip').classList.remove('on');pair('co2','hl2',false);
+  document.getElementById('spawn-si').style.display='flex';setTimeout(function(){measureAll();pair('co3','hl3',true);},60);
+}
+function dismissChip(){document.getElementById('chip').classList.remove('on');pair('co2','hl2',false);}
+function switchTo(v){
+  if(v==='spawn'&&(STATE==='idle'||STATE==='sent'||STATE==='chip'))return;
+  pair('co3','hl3',false);pair('co5','hl5',false);curView=v;
+  if(v==='spawn'){document.getElementById('root-si').classList.remove('active');document.getElementById('spawn-si').classList.add('active');document.getElementById('tname').textContent='Fix token refresh error';renderSpawnView();}
+  else{document.getElementById('spawn-si').classList.remove('active');document.getElementById('root-si').classList.add('active');document.getElementById('tname').textContent='Token refresh bug';renderRootView();}
+}
+function renderRootView(){
+  var msgs=document.getElementById('msgs');
+  msgs.innerHTML='<div class="msg visible"><div class="av avc">C</div><div class="bub">Intermittent — want to check the token TTL config before patching the retry logic.</div></div>';
+  if(STATE!=='idle'){addMsg(true,'<code>/new-thread</code> fix the token refresh error we just saw').classList.add('show');addMsg(false,'Staging the spawn…<br><span style="color:#5F5E5A;font-size:9.5px">Suggesting task: Fix token refresh error ▶</span>').classList.add('show');}
+  if(STATE==='loopDone'){
+    var ret=document.createElement('div');ret.className='msg visible';
+    ret.innerHTML='<div class="av" style="width:22px;height:22px;border-radius:50%;background:#3A3066;color:#9C97E8;font-size:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center">←</div><div class="bub ret"><div class="ret-from">From Fix token refresh error</div>Root cause: <code>refreshToken()</code> in auth.ts:84 — no retry on 401. Fixed with <code>withRetry</code> + concurrent guard. Coverage 84%→93%. Next: review and merge auth.ts.</div></div>';
+    msgs.appendChild(ret);scrollMsgs();
+  }
+  document.getElementById('inp').value=STATE==='idle'?'/new-thread fix the token refresh error we just saw':'';
+  document.getElementById('inp').placeholder=STATE==='idle'?'':'Type / for commands';
+  document.getElementById('inp').style.color=STATE==='idle'?'#ECEAE2':'#5F5E5A';
+  document.getElementById('sbtn').className='sbtn'+(STATE!=='idle'?' off':'');
+  document.getElementById('thinking').classList.remove('on');document.getElementById('sim-btn').style.display='none';document.getElementById('perm-bar').classList.remove('on');
+  pair('co4','hl4',false);pair('co6','hl6',false);
+  document.getElementById('bp-badge').className='bp on';document.getElementById('bp-badge').textContent='Bypass permissions';
+}
+function renderSpawnView(){
+  var msgs=document.getElementById('msgs');msgs.innerHTML='';
+  var brief=document.createElement('div');brief.className='msg visible';
+  brief.innerHTML='<div class="bub sys" style="width:100%"><div style="color:#5F5E5A;font-size:9px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Task brief</div>Fix the token refresh error seen in the root session.<br>Root session: Token refresh bug</div>';
+  msgs.appendChild(brief);
+  document.getElementById('bp-badge').className='bp off';document.getElementById('bp-badge').textContent='Bypass permissions off';
+  if(STATE==='spawned'){
+    document.getElementById('sim-btn').style.display='block';
+    document.getElementById('inp').placeholder='Type a message…';document.getElementById('inp').value='';document.getElementById('inp').style.color='#5F5E5A';
+    document.getElementById('sbtn').className='sbtn off';document.getElementById('perm-bar').classList.remove('on');pair('co4','hl4',false);pair('co6','hl6',false);
+  } else if(STATE==='simDone'){
+    SPAWN_CONVO.forEach(function(m){addMsg(m.r,m.txt,true);});
+    addToolRow('Ran skill /loop-back',true);addMsg(false,'Sending findings to "Token refresh bug" — you\'ll be asked to confirm.',true);addToolRow('Using ccd_session_mgmt: send_message',true);
+    document.getElementById('sim-btn').style.display='none';document.getElementById('inp').value='/loop-back';document.getElementById('inp').style.color='#ECEAE2';document.getElementById('inp').placeholder='';
+    document.getElementById('sbtn').className='sbtn';pair('co4','hl4',true);document.getElementById('perm-bar').classList.remove('on');pair('co6','hl6',false);scrollMsgs();
+  } else if(STATE==='confirming'){
+    SPAWN_CONVO.forEach(function(m){addMsg(m.r,m.txt,true);});
+    addToolRow('Ran skill /loop-back',true);addMsg(false,'Sending findings to "Token refresh bug" — you\'ll be asked to confirm.',true);addToolRow('Using ccd_session_mgmt: send_message',true);
+    document.getElementById('sim-btn').style.display='none';document.getElementById('inp').value='';document.getElementById('inp').placeholder='Type a message…';document.getElementById('inp').style.color='#5F5E5A';
+    document.getElementById('sbtn').className='sbtn off';document.getElementById('perm-bar').classList.add('on');pair('co4','hl4',false);
+    setTimeout(function(){measureAll();pair('co6','hl6',true);},30);scrollMsgs();
+  } else if(STATE==='loopDone'){
+    SPAWN_CONVO.forEach(function(m){addMsg(m.r,m.txt,true);});
+    addToolRow('Ran skill /loop-back',true);addMsg(false,'Sending findings to "Token refresh bug" — you\'ll be asked to confirm.',true);addToolRow('Used ccd_session_mgmt: send_message',true);
+    addMsg(false,'Done — findings delivered to <strong style="color:#ECEAE2">Token refresh bug</strong>.',true);
+    document.getElementById('sim-btn').style.display='none';document.getElementById('inp').value='';document.getElementById('inp').placeholder='Type a message…';document.getElementById('inp').style.color='#5F5E5A';
+    document.getElementById('sbtn').className='sbtn off';document.getElementById('perm-bar').classList.remove('on');pair('co4','hl4',false);pair('co6','hl6',false);
+    document.getElementById('spawn-dot').className='dot done';
+    setTimeout(function(){measureAll();pair('co5','hl5',true);},300);scrollMsgs();
+  }
+}
+function simulateWork(){
+  document.getElementById('sim-btn').style.display='none';
+  document.getElementById('spin').classList.add('on');document.getElementById('thinking').classList.add('on');
+  var i=0;
+  function next(){
+    if(i>=SPAWN_CONVO.length){
+      document.getElementById('thinking').classList.remove('on');document.getElementById('spin').classList.remove('on');
+      STATE='simDone';addToolRow('Ran skill /loop-back');
+      setTimeout(function(){addMsg(false,'Sending findings to "Token refresh bug" — you\'ll be asked to confirm.');addToolRow('Using ccd_session_mgmt: send_message');document.getElementById('inp').value='/loop-back';document.getElementById('inp').style.color='#ECEAE2';document.getElementById('sbtn').className='sbtn';setTimeout(function(){pair('co4','hl4',true);scrollMsgs();},80);},120);
+      return;
+    }
+    var m=SPAWN_CONVO[i];i++;
+    if(!m.r){document.getElementById('thinking').classList.add('on');document.getElementById('spin').classList.add('on');}
+    setTimeout(function(){document.getElementById('thinking').classList.remove('on');document.getElementById('spin').classList.remove('on');addMsg(m.r,m.txt);scrollMsgs();setTimeout(next,m.r?40:70);},m.r?0:60);
+  }
+  setTimeout(next,60);
+}
+function restart(){
+  STATE='idle';curSel=0;curView='root';
+  ['co1','co2','co3','co4','co5','co6','hl1','hl2','hl3','hl4','hl5','hl6'].forEach(function(id){vis(id,false);});
+  document.getElementById('chip').classList.remove('on');document.getElementById('thinking').classList.remove('on');document.getElementById('spin').classList.remove('on');
+  document.getElementById('spawn-si').style.display='none';document.getElementById('spawn-si').style.color='#9C9A92';
+  document.getElementById('spawn-dot').className='dot run';
+  document.getElementById('root-si').classList.add('active');document.getElementById('spawn-si').classList.remove('active');
+  document.getElementById('tname').textContent='Token refresh bug';document.getElementById('launch-lbl').textContent='Start locally';
+  for(var j=0;j<3;j++) document.getElementById('opt'+j).classList.remove('sel');document.getElementById('opt0').classList.add('sel');
+  renderRootView();setTimeout(function(){measureAll();pair('co1','hl1',true);},50);
+}
+document.getElementById('inp').style.color='#ECEAE2';
+</script>
+</body>
+</html>
