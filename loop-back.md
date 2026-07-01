@@ -43,7 +43,9 @@ Root session ID: <id>
 Root session title: <title>
 ```
 
-**If both are missing → hard error:**
+**Treat a field as missing if the line is absent, OR if its value is placeholder/hedge text rather than a real title or ID** (e.g. contains `unknown`, `could not confirm`, `resolve live`, `n/a`, or is otherwise not a usable literal value). A placeholder string is not a valid handle for `list_sessions` matching and must fail the same way an absent line does — do not attempt to use it as-is.
+
+**If both are missing (by the rule above) → hard error:**
 
 ```
 /loop-back only works in sessions spawned by /new-thread.
@@ -78,6 +80,7 @@ Resolve the real, currently-live ID:
 
 1. Call `list_sessions` and look for an entry whose `title` matches `Root session title` from the header.
 2. Titles drift — a session can rename itself mid-run. If no title matches, call `search_session_transcripts` with the query `Thread chip created: "<thread title>"`, where `<thread title>` is the `Thread title:` field from **this session's own prompt header**. That exact phrase was logged by the root when it spawned this thread and will not change regardless of how the root session renamed itself since. The matching session's `sessionId` is the root.
+   - **Caveat:** `new-thread.md` Step 7's own instructions contain this same phrase as a literal template example, and that skill doc's text can itself surface in transcript search. Discard any hit whose surrounding content is the `new-thread.md`/`loop-back.md` skill instructions (recognizable by nearby headers like `## Step 7 — Confirm` or `# /loop-back —`) rather than an actual chat turn — it is not a real spawn event. Prefer hits that also include a `(root: ..., <date>)` suffix, which only appears in genuine runtime confirmations (post-fix), not in the doc template.
 3. Prefer a session with `isRunning: true` when there is ambiguity.
 4. If nothing resolves, report it and stop — do not send to the header ID blindly.
 

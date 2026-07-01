@@ -193,7 +193,9 @@ One-time:
 
 No API keys. No environment variables.
 
-**Note on session ID lookup:** each child prompt now includes a `Thread title:` field — the title baked in at spawn time. `/loop-back` first tries to match the root by title via `list_sessions`. If the root has been renamed since spawning (titles drift as conversations evolve), it falls back to searching transcripts for `Thread chip created: "<thread title>"` — a phrase logged by the root at spawn time that is immutable. This makes the return path robust to title drift without requiring the root session to know its own `local_` ID.
+**Note on session ID lookup:** each child prompt now includes a `Thread title:` field — the title baked in at spawn time. `/loop-back` first tries to match the root by title via `list_sessions`. If the root has been renamed since spawning (titles drift as conversations evolve), it falls back to searching transcripts for `Thread chip created: "<thread title>" (root: <id>, <date>)` — a phrase logged by the root at spawn time that is immutable. This makes the return path robust to title drift without requiring the root session to know its own `local_` ID.
+
+**Known failure mode (fixed):** earlier versions of `new-thread.md` could write explanatory placeholder text (e.g. "unknown — could not confirm title") into `Root session title`/`Root session ID` instead of omitting the field when the runtime title wasn't visible, and the confirmation line in `new-thread.md` Step 7 was itself a verbatim match for the search query `loop-back.md` uses — so the transcript search could return the skill doc's own instructions instead of a real spawn event. Both are fixed: unconfirmable fields are now omitted rather than hedged, and the confirmation line is stamped with the root ID and date so it can't collide with the doc's own template text.
 
 ---
 

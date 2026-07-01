@@ -30,8 +30,8 @@ Before loading the schema, identify the current session so the spawn can referen
    - **Do NOT synthesise, paraphrase, or describe the conversation topic.** If you cannot see the exact runtime title, leave the field blank — a wrong title is worse than a missing one because `/loop-back` will silently match the wrong session.
    - In practice the title often appears in the conversation context or system prompt (e.g. as "Thread title: …"). Copy it character-for-character from there.
 3. The current session is **excluded** from `list_sessions`, so it cannot return its own ID directly. Capture instead:
-   - `Root session title` — the verbatim runtime title from step 2 (the primary handle `/loop-back` resolves against).
-   - `Root session ID` — best-effort. If the runtime exposes the current `local_…` session ID, use it. Otherwise record the raw transcript UUID and mark it `(transcript UUID — resolve live via title)` so `/loop-back` knows not to trust it directly.
+   - `Root session title` — the verbatim runtime title from step 2 (the primary handle `/loop-back` resolves against). **If it cannot be confirmed verbatim, omit the `Root session title:` line entirely — never write hedge/placeholder text (e.g. "(unknown — could not confirm...)") in its place.** A placeholder string is not detected as missing by `/loop-back` Step 1, so it silently breaks root-session detection instead of failing cleanly into the manual-fallback path.
+   - `Root session ID` — best-effort. If the runtime exposes the current `local_…` session ID, use it. Otherwise record the raw transcript UUID and mark it `(transcript UUID — resolve live via title)`. If neither is available, omit the `Root session ID:` line entirely — same rule as above, no placeholder text.
 
 `/loop-back` resolves the live ID from `Root session title` at send time (titles can drift, IDs can go stale), so the title is the field that matters most here.
 
@@ -214,10 +214,10 @@ Call `mcp__ccd_session__spawn_task` with:
 
 ## Step 7 — Confirm
 
-Output one line in chat:
+Output one line in chat, including the date and root ID so the phrase is unique and not just a repeat of this skill doc's own template text (see `loop-back.md` Step 3.2 — the search fallback matches on this exact line and must not collide with the instructional example above):
 
 ```
-Thread chip created: "<title>"
+Thread chip created: "<title>" (root: <Root session ID from Step 2, or "unresolved">, <date from Step 4>)
 ```
 
 If the tool fails, report the error and suggest the user call `/new-thread` again from a main CC window (not a worktree session).
